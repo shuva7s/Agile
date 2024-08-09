@@ -72,4 +72,11 @@
   .wrapper {
     @apply mx-12;
   }
+  .cl-internal-1j7ahlv{
+    @apply w-8 h-8;
+  }
+  .cl-avatarBox {
+    width: 2.75rem;
+    height: 2.75rem;
+  }
 }

@@ -1,6 +1,19 @@
-import { Schema, model, models, Document } from "mongoose";
+import { Schema, model, models, Document, Types } from "mongoose";
 
-// Define the Mongoose schema
+// Create the TypeScript interface for User
+export interface IUser extends Document {
+  clerkId: string;
+  email: string;
+  username: string;
+  photo: string;
+  firstName?: string;
+  lastName?: string;
+  createdAt?: Date;
+  hostedProjects: Types.ObjectId[];
+  workingOnProjects: Types.ObjectId[];
+}
+
+// Define the Mongoose schema for User
 const UserSchema = new Schema({
   clerkId: {
     type: String,
@@ -31,21 +44,21 @@ const UserSchema = new Schema({
     type: Date,
     default: Date.now,
   },
+  hostedProjects: [
+    {
+      type: Types.ObjectId,
+      ref: "Project",
+    },
+  ],
+  workingOnProjects: [
+    {
+      type: Types.ObjectId,
+      ref: "Project",
+    },
+  ],
 });
 
-// Create the TypeScript interface
-export interface IUser extends Document {
-  clerkId: string;
-  email: string;
-  username: string;
-  photo: string;
-  firstName?: string;
-  lastName?: string;
-  createdAt?: Date;
-}
-
-// Create the Mongoose model
-// const User = models?.User || model("User", UserSchema);
+// Create the Mongoose model for User
 const User = models?.User || model<IUser>("User", UserSchema);
 
 export default User;
