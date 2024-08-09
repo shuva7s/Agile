@@ -23,7 +23,7 @@ declare type CreateProjectParams = {
   hostClerkId: string;
   projectName: string;
   projectDescription: string;
-  people: Types.ObjectId[] | IUser[];
+  people: string[];
   createdAt: Date;
   updatedAt: Date;
 };

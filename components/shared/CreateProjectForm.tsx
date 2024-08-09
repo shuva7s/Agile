@@ -16,17 +16,17 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 
-import { auth } from "@clerk/nextjs/server";
-import { currentUser } from "@clerk/nextjs/server";
 import { useUser } from "@clerk/nextjs";
 import { createProject } from "@/lib/actions/project.actions";
+import { useToast } from "../ui/use-toast";
+import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-  projectName: z.string().nonempty("Project Name is required"),
+  projectName: z.string(),
   projectDescription: z.string().optional(),
 });
 
-export function CreatePostForm() {
+export function CreateProjectForm() {
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -37,6 +37,8 @@ export function CreatePostForm() {
   });
 
   const { user } = useUser();
+  const { toast } = useToast();
+  const router = useRouter();
   // 2. Define a submit handler.
   async function onSubmit(values: z.infer<typeof formSchema>) {
     try {
@@ -52,11 +54,31 @@ export function CreatePostForm() {
 
       // Call the createProject function
       const newProject = await createProject(projectData);
+      console.dir(newProject);
 
       if (newProject) {
         form.reset();
-        // Optionally redirect to the project page
-        // router.push(`/projects/${newProject._id}`);
+        const date = new Date(newProject.createdAt);
+        const dateFormatter = new Intl.DateTimeFormat("en-US", {
+          weekday: "long",
+          year: "numeric",
+          month: "long",
+          day: "numeric",
+        });
+        const timeFormatter = new Intl.DateTimeFormat("en-US", {
+          hour: "numeric",
+          minute: "numeric",
+          hour12: true,
+        });
+        const formattedDate = dateFormatter.format(date);
+        const formattedTime = timeFormatter.format(date);
+        const formattedDateTime = `${formattedDate} at ${formattedTime}`;
+        toast({
+          title: "New Project Created",
+          description: formattedDateTime,
+        });
+        router.push(`/project/${newProject._id}`);
+        router.refresh();
       }
     } catch (error) {
       console.log(error);
@@ -98,7 +120,17 @@ export function CreatePostForm() {
             </FormItem>
           )}
         />
-        <Button type="submit">Submit</Button>
+        <Button
+          type="submit"
+          // onClick={() => {
+          //   toast({
+          //     title: "Scheduled: Catch up",
+          //     description: "Friday, February 10, 2023 at 5:57 PM",
+          //   });
+          // }}
+        >
+          Submit
+        </Button>
       </form>
     </Form>
   );
