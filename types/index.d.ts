@@ -24,6 +24,12 @@ declare type CreateProjectParams = {
   projectName: string;
   projectDescription: string;
   people: string[];
+  logs: ILog[]; // Array of logs
+  todo: ITask[]; // Array of tasks for todo
+  inProgress: ITask[]; // Array of tasks for in-progress
+  testing: ITask[]; // Array of tasks for testing
+  done: ITask[]; // Array of tasks for done
+  joinRequests: string[]; // Array of clerk User IDs for join requests
   createdAt: Date;
   updatedAt: Date;
 };

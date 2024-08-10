@@ -48,6 +48,12 @@ export function CreateProjectForm() {
         projectName: values.projectName,
         projectDescription: values.projectDescription || "",
         people: [], // Assuming you start with an empty array for now
+        logs: [], // Assuming empty logs array initially
+        todo: [], // Assuming empty todo array initially
+        inProgress: [], // Assuming empty inProgress array initially
+        testing: [], // Assuming empty testing array initially
+        done: [], // Assuming empty done array initially
+        joinRequests: [], // Assuming empty joinRequests array initially
         createdAt: new Date(),
         updatedAt: new Date(),
       };
@@ -58,6 +64,7 @@ export function CreateProjectForm() {
 
       if (newProject) {
         form.reset();
+
         const date = new Date(newProject.createdAt);
         const dateFormatter = new Intl.DateTimeFormat("en-US", {
           weekday: "long",
@@ -73,10 +80,12 @@ export function CreateProjectForm() {
         const formattedDate = dateFormatter.format(date);
         const formattedTime = timeFormatter.format(date);
         const formattedDateTime = `${formattedDate} at ${formattedTime}`;
+
         toast({
           title: "New Project Created",
           description: formattedDateTime,
         });
+
         router.push(`/project/${newProject._id}`);
         router.refresh();
       }

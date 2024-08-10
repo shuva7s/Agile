@@ -36,30 +36,20 @@ const ProjectsContainer = ({ type, projects }: ProjectsContainerProps) => {
         </div>
       )}
 
-      <div className="min-h-[40vh] grid auto-grid gap-3">
+      <div className="min-h-[40vh] grid auto-grid gap-3 items-start">
         {projects.length > 0 ? (
           projects.map((project) => (
-            // <div key={project._id.toString()} className="border rounded-md">
-            //   <h3>{project.projectName}</h3>
-            //   <p>{project.projectDescription}</p>
-            // </div>
-            <Link href={`/project/${project._id.toString()}`}>
-              <Card
-                key={project._id.toString()}
-                className="hover:bg-border transition-all"
-              >
+            <Link
+              href={`/project/${project._id.toString()}`}
+              key={project._id.toString()}
+            >
+              <Card className="hover:bg-border transition-all">
                 <CardHeader>
                   <CardTitle>{project.projectName}</CardTitle>
                   <CardDescription>
                     {project.projectDescription}
                   </CardDescription>
                 </CardHeader>
-                {/* <CardContent>
-              <p>Card Content</p>
-            </CardContent>
-            <CardFooter>
-              <p>Card Footer</p>
-            </CardFooter> */}
               </Card>
             </Link>
           ))

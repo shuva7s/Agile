@@ -1,3 +1,4 @@
+import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import { ClerkProvider } from "@clerk/nextjs";
 
 export const metadata = {
@@ -13,7 +14,18 @@ export default function RootLayout({
   return (
     <ClerkProvider afterSignOutUrl="/">
       <html lang="en">
-        <body>{children}</body>
+        <body>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <main className="wrapper min-h-screen flex justify-center items-center">
+              {children}
+            </main>
+          </ThemeProvider>
+        </body>
       </html>
     </ClerkProvider>
   );

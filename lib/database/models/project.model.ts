@@ -3,7 +3,7 @@ import { Schema, model, Document, models, Types } from "mongoose";
 // Define the TypeScript interface for Task
 interface ITask {
   task: string;
-  assignedPeople: string[]; // Array of clerk user IDs
+  assignedPeople: string[]; // Array of Clerk user IDs
 }
 
 // Define the Mongoose schema for Log
@@ -14,19 +14,25 @@ export interface ILog {
   logCreationTime: Date;
 }
 
+// Define the TypeScript interface for JoinRequest
+interface IJoinRequest {
+  userId: string;
+  username: string;
+}
+
 // Define the TypeScript interface for Project
 export interface IProject extends Document {
   _id: Types.ObjectId; // Mongoose ObjectId type
   hostClerkId: string;
   projectName: string;
   projectDescription?: string;
-  people: string[]; // Array of clerk IDs (strings)
+  people: string[]; // Array of Clerk IDs (strings)
   logs: ILog[]; // Array of logs
   todo: ITask[]; // Array of tasks for todo
   inProgress: ITask[]; // Array of tasks for in-progress
   testing: ITask[]; // Array of tasks for testing
   done: ITask[]; // Array of tasks for done
-  joinRequests: string[]; // Array of clerk user IDs for join requests
+  joinRequests: IJoinRequest[]; // Array of join request objects
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -66,6 +72,18 @@ const TaskSchema = new Schema<ITask>({
   ],
 });
 
+// Define the Mongoose schema for JoinRequest
+const JoinRequestSchema = new Schema<IJoinRequest>({
+  userId: {
+    type: String,
+    required: true,
+  },
+  username: {
+    type: String,
+    required: true,
+  },
+});
+
 // Define the Mongoose schema for Project
 const ProjectSchema = new Schema<IProject>({
   hostClerkId: {
@@ -79,13 +97,13 @@ const ProjectSchema = new Schema<IProject>({
   projectDescription: {
     type: String,
   },
-  people: [String], // Array of clerk IDs (strings)
+  people: [String], // Array of Clerk IDs (strings)
   logs: [LogSchema], // Array of Log objects
   todo: [TaskSchema], // Array of Task objects for todo
   inProgress: [TaskSchema], // Array of Task objects for in-progress
   testing: [TaskSchema], // Array of Task objects for testing
   done: [TaskSchema], // Array of Task objects for done
-  joinRequests: [String], // Array of clerk user IDs for join requests
+  joinRequests: [JoinRequestSchema], // Array of JoinRequest objects
   createdAt: {
     type: Date,
     default: Date.now,

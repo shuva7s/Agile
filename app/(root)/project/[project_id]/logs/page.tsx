@@ -15,11 +15,10 @@ export default async function logsPage({
     <main>
       {userId === projectData.hostClerkId ? (
         <div className="wrapper">
-          <p className="text-xl font-semibold">
-            {projectData.projectName}
-            {".logs"}
+          <p className="">
+            Showing <span className="font-bold">Logs</span> for project
           </p>
-          <p>Log keeps track every thing in this project.</p>
+          <p className="text-2xl font-semibold">{projectData.projectName}</p>
         </div>
       ) : (
         <section>
