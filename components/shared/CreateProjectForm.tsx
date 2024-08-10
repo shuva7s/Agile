@@ -47,13 +47,13 @@ export function CreateProjectForm() {
         hostClerkId: user?.id || "",
         projectName: values.projectName,
         projectDescription: values.projectDescription || "",
-        people: [], // Assuming you start with an empty array for now
-        logs: [], // Assuming empty logs array initially
-        todo: [], // Assuming empty todo array initially
-        inProgress: [], // Assuming empty inProgress array initially
-        testing: [], // Assuming empty testing array initially
-        done: [], // Assuming empty done array initially
-        joinRequests: [], // Assuming empty joinRequests array initially
+        people: [], // Array of objects with userId and username
+        logs: [], // Array of log objects
+        todo: [], // Array of task objects for todo
+        inProgress: [], // Array of task objects for in-progress
+        testing: [], // Array of task objects for testing
+        done: [], // Array of task objects for done
+        joinRequests: [], // Array of join request objects
         createdAt: new Date(),
         updatedAt: new Date(),
       };

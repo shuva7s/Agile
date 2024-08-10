@@ -15,7 +15,15 @@ export interface ILog {
 }
 
 // Define the TypeScript interface for JoinRequest
-interface IJoinRequest {
+export interface IJoinRequest {
+  _id: Types.ObjectId;
+  userId: string;
+  username: string;
+  accepted: boolean; // New field to track acceptance status
+}
+
+// Define the TypeScript interface for People
+export interface IPerson {
   userId: string;
   username: string;
 }
@@ -26,7 +34,7 @@ export interface IProject extends Document {
   hostClerkId: string;
   projectName: string;
   projectDescription?: string;
-  people: string[]; // Array of Clerk IDs (strings)
+  people: IPerson[]; // Array of objects storing both userId and username
   logs: ILog[]; // Array of logs
   todo: ITask[]; // Array of tasks for todo
   inProgress: ITask[]; // Array of tasks for in-progress
@@ -82,6 +90,23 @@ const JoinRequestSchema = new Schema<IJoinRequest>({
     type: String,
     required: true,
   },
+  accepted: {
+    type: Boolean,
+    default: false, // Default to false until the request is accepted
+    required: true,
+  },
+});
+
+// Define the Mongoose schema for Person
+const PersonSchema = new Schema<IPerson>({
+  userId: {
+    type: String,
+    required: true,
+  },
+  username: {
+    type: String,
+    required: true,
+  },
 });
 
 // Define the Mongoose schema for Project
@@ -97,7 +122,7 @@ const ProjectSchema = new Schema<IProject>({
   projectDescription: {
     type: String,
   },
-  people: [String], // Array of Clerk IDs (strings)
+  people: [PersonSchema], // Array of Person objects
   logs: [LogSchema], // Array of Log objects
   todo: [TaskSchema], // Array of Task objects for todo
   inProgress: [TaskSchema], // Array of Task objects for in-progress

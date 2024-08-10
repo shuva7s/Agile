@@ -23,13 +23,13 @@ declare type CreateProjectParams = {
   hostClerkId: string;
   projectName: string;
   projectDescription: string;
-  people: string[];
+  people: IPerson[]; // Updated to include userId and username
   logs: ILog[]; // Array of logs
   todo: ITask[]; // Array of tasks for todo
   inProgress: ITask[]; // Array of tasks for in-progress
   testing: ITask[]; // Array of tasks for testing
   done: ITask[]; // Array of tasks for done
-  joinRequests: string[]; // Array of clerk User IDs for join requests
+  joinRequests: IJoinRequest[]; // Updated to include userId, username, and accepted status
   createdAt: Date;
   updatedAt: Date;
 };

@@ -56,4 +56,17 @@ export async function hasUserRequested(
   }
 }
 
-// export async function
+export async function deleteRequestById(
+  req_id: string,
+  projectId: string
+): Promise<void> {
+  try {
+    await connectToDatabase();
+    await Project.updateOne(
+      { _id: projectId, "joinRequests._id": req_id },
+      { $pull: { joinRequests: { _id: req_id } } }
+    );
+  } catch (error) {
+    handleError(error);
+  }
+}

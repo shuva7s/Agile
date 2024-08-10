@@ -1,6 +1,9 @@
 import { getProjectById } from "@/lib/actions/project.actions";
 import { currentUser } from "@clerk/nextjs/server";
 import GoBack from "@/components/shared/GoBack";
+import { IJoinRequest } from "@/lib/database/models/project.model";
+import { Card } from "@/components/ui/card";
+import AcceptReq from "@/components/shared/AcceptReq";
 
 export default async function JoinRequests({
   params,
@@ -20,9 +23,21 @@ export default async function JoinRequests({
               project
             </p>
             <p className="text-2xl font-semibold">{projectData.projectName}</p>
-            <div>
-              {/* {projectData &&
-                projectData.joinRequests.map((req) => <p>{req}</p>)} */}
+            <div className="mt-6">
+              {projectData &&
+                projectData.joinRequests.map((req: IJoinRequest) => (
+                  <Card
+                    key={req._id.toString()}
+                    className=" px-4 py-2.5 flex flex-col gap-1.5 hover:bg-border transition-all"
+                  >
+                    <p className="text-xl font-semibold">@{req.username}</p>
+                    <p>~{req.userId}</p>
+                    <AcceptReq
+                      req_id={req._id.toString()}
+                      projectId={params.project_id}
+                    />
+                  </Card>
+                ))}
             </div>
           </div>
         ) : (

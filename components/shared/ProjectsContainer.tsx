@@ -48,7 +48,16 @@ const ProjectsContainer = ({ type, projects }: ProjectsContainerProps) => {
                   <CardTitle>{project.projectName}</CardTitle>
                   <CardDescription>
                     {project.projectDescription}
-                  </CardDescription>
+                  </CardDescription>{" "}
+                  {type === "hosted" && (
+                    <CardFooter>
+                      <Button variant="outline" className="w-8 h-8 rounded-full" asChild>
+                        <Link href={`/project/${project._id}/join-requests`}>
+                          {"->"}
+                        </Link>
+                      </Button>
+                    </CardFooter>
+                  )}
                 </CardHeader>
               </Card>
             </Link>
