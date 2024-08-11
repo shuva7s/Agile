@@ -1,7 +1,9 @@
 "use server";
 import Project from "../database/models/project.model";
+import User from "../database/models/user.model";
 import { connectToDatabase } from "../database/mongoose";
 import { handleError } from "../utils";
+import mongoose from "mongoose";
 
 interface SendJoinReqProps {
   projectId: string;
@@ -53,6 +55,28 @@ export async function hasUserRequested(
   } catch (error) {
     console.error("Error checking join request status:", error);
     return false;
+  }
+}
+
+export async function acceptReqById(reqId: string, projectId: string) {
+  try {
+    await connectToDatabase();
+    const project = await Project.findById(projectId);
+    const joinRequest = project.joinRequests.id(reqId);
+    project.people.push({
+      userId: joinRequest.userId,
+      username: joinRequest.username,
+    });
+
+    project.joinRequests.pull({ _id: reqId });
+    await project.save();
+    const user = await User.findOne({ clerkId: joinRequest.userId });
+    if (user) {
+      user.workingOnProjects.push(project._id);
+      await user.save();
+    }
+  } catch (error) {
+    handleError(error);
   }
 }
 

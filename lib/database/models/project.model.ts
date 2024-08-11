@@ -24,6 +24,7 @@ export interface IJoinRequest {
 
 // Define the TypeScript interface for People
 export interface IPerson {
+  _id:Types.ObjectId;
   userId: string;
   username: string;
 }

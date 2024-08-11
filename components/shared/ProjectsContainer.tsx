@@ -17,25 +17,6 @@ interface ProjectsContainerProps {
 
 const ProjectsContainer = ({ type, projects }: ProjectsContainerProps) => {
   return (
-    <section>
-      {type === "hosted" ? (
-        <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-2xl my-6">
-            Projects Hosted By You
-          </h2>
-          <Button asChild className="font-medium">
-            <Link href="/new">Create Project</Link>
-          </Button>
-        </div>
-      ) : (
-        <div className="flex justify-between items-center">
-          <h2 className="font-semibold text-2xl my-6">Working on</h2>
-          <Button asChild className="font-medium">
-            <Link href="/join">Join Project</Link>
-          </Button>
-        </div>
-      )}
-
       <div className="min-h-[40vh] grid auto-grid gap-3 items-start">
         {projects.length > 0 ? (
           projects.map((project) => (
@@ -51,11 +32,11 @@ const ProjectsContainer = ({ type, projects }: ProjectsContainerProps) => {
                   </CardDescription>{" "}
                   {type === "hosted" && (
                     <CardFooter>
-                      <Button variant="outline" className="w-8 h-8 rounded-full" asChild>
+                      {/* <Button variant="outline" className="w-8 h-8 rounded-full" asChild>
                         <Link href={`/project/${project._id}/join-requests`}>
                           {"->"}
                         </Link>
-                      </Button>
+                      </Button> */}
                     </CardFooter>
                   )}
                 </CardHeader>
@@ -66,7 +47,6 @@ const ProjectsContainer = ({ type, projects }: ProjectsContainerProps) => {
           <p>No Projects to Show.</p>
         )}
       </div>
-    </section>
   );
 };
 

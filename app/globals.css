@@ -76,4 +76,10 @@
     /* grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); */
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   }
+  .fl-center {
+    @apply min-h-screen flex justify-center items-center;
+  }
+  .fl-col-center {
+    @apply min-h-screen flex flex-col justify-center items-center;
+  }
 }
