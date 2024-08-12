@@ -4,6 +4,8 @@ import { currentUser } from "@clerk/nextjs/server";
 import { hasUserRequested } from "@/lib/actions/other.actions";
 import { IPerson } from "@/lib/database/models/project.model";
 import NetwokConnetionSLow from "@/components/shared/NetwokConnetionSLow";
+import { Button } from "@/components/ui/button";
+import Link from "next/link";
 
 export default async function projectDynamic({
   params,
@@ -37,11 +39,31 @@ export default async function projectDynamic({
       <main>
         <section className="wrapper">
           {isUserHostOrMember ? (
-            <div>
-              <p>{projectData.hostClerkId}</p>
-              <p>{projectData.projectName}</p>
-              <p>{projectData.projectDescription}</p>
-            </div>
+            <section>
+              <h2 className="text-2xl font-semibold">
+                {projectData.projectName}
+              </h2>
+              <p className="text-lg ">{projectData.projectDescription}</p>
+              {userId === projectData.hostClerkId && (
+                <div className="flex gap-2">
+                  <Button asChild>
+                    <Link href={`/project/${projectData._id}/join-requests`}>
+                      Join requests
+                    </Link>
+                  </Button>
+                  <Button asChild>
+                    <Link href={`/project/${projectData._id}/members`}>
+                      Members
+                    </Link>
+                  </Button>
+                  <Button asChild>
+                    <Link href={`/project/${projectData._id}/settings`}>
+                      Settings
+                    </Link>
+                  </Button>
+                </div>
+              )}
+            </section>
           ) : (
             <div className="min-h-screen flex flex-col justify-center items-center">
               {userHasRequested ? (

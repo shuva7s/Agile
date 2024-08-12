@@ -3,9 +3,8 @@ import { currentUser } from "@clerk/nextjs/server";
 import GoBack from "@/components/shared/GoBack";
 import { IJoinRequest } from "@/lib/database/models/project.model";
 import { Card } from "@/components/ui/card";
-import AcceptReq from "@/components/shared/AcceptReq";
-import RejectReq from "@/components/shared/RejectReq";
 import NetwokConnetionSLow from "@/components/shared/NetwokConnetionSLow";
+import HandleJoinReqForm from "@/components/shared/HandleJoinReqForm";
 
 export default async function JoinRequests({
   params,
@@ -16,6 +15,8 @@ export default async function JoinRequests({
     const user = await currentUser();
     const userId = user?.id || "";
     const projectData = await getProjectById(params.project_id);
+    console.log(userId);
+    console.log(projectData.hostClerkId);
     return (
       <main>
         <section className="wrapper">
@@ -29,24 +30,23 @@ export default async function JoinRequests({
                 {projectData.projectName}
               </p>
               <div className="mt-6">
-                {projectData &&
+                {projectData.joinRequests.length > 0 ? (
                   projectData.joinRequests.map((req: IJoinRequest) => (
                     <Card
                       key={req._id.toString()}
-                      className=" px-4 py-2.5 flex flex-col gap-1.5 hover:bg-border transition-all"
+                      className=" px-4 py-2.5 flex flex-col gap-1.5 hover:bg-border/30 transition-all"
                     >
                       <p className="text-xl font-semibold">@{req.username}</p>
                       <p>~{req.userId}</p>
-                      <AcceptReq
-                        req_id={req._id.toString()}
-                        projectId={params.project_id}
-                      />
-                      <RejectReq
-                        req_id={req._id.toString()}
+                      <HandleJoinReqForm
+                        reqId={req._id.toString()}
                         projectId={params.project_id}
                       />
                     </Card>
-                  ))}
+                  ))
+                ) : (
+                  <p>No join requests to show.</p>
+                )}
               </div>
             </div>
           ) : (

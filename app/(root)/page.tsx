@@ -27,17 +27,6 @@ export default async function Home() {
           <div className="wrapper min-h-screen">
             <section>
               <div className="flex justify-between items-center">
-                <h2 className="font-semibold text-2xl my-6">
-                  Projects Hosted By You
-                </h2>
-                <Button asChild className="font-medium">
-                  <Link href="/new">Create Project</Link>
-                </Button>
-              </div>
-              <ProjectsContainer type={"hosted"} projects={Hosted_projects} />
-            </section>
-            <section>
-              <div className="flex justify-between items-center">
                 <h2 className="font-semibold text-2xl my-6">Working on</h2>
                 <Button asChild className="font-medium">
                   <Link href="/join">Join Project</Link>
@@ -47,6 +36,17 @@ export default async function Home() {
                 type={"working"}
                 projects={WorkingOn_projects}
               />
+            </section>
+            <section>
+              <div className="flex justify-between items-center">
+                <h2 className="font-semibold text-2xl my-6">
+                  Projects Hosted By You
+                </h2>
+                <Button asChild className="font-medium">
+                  <Link href="/new">Create Project</Link>
+                </Button>
+              </div>
+              <ProjectsContainer type={"hosted"} projects={Hosted_projects} />
             </section>
           </div>
         </SignedIn>

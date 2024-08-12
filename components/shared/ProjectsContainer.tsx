@@ -16,37 +16,27 @@ interface ProjectsContainerProps {
 }
 
 const ProjectsContainer = ({ type, projects }: ProjectsContainerProps) => {
+  projects = projects.reverse();
   return (
-      <div className="min-h-[40vh] grid auto-grid gap-3 items-start">
-        {projects.length > 0 ? (
-          projects.map((project) => (
-            <Link
-              href={`/project/${project._id.toString()}`}
-              key={project._id.toString()}
-            >
-              <Card className="hover:bg-border transition-all">
-                <CardHeader>
-                  <CardTitle>{project.projectName}</CardTitle>
-                  <CardDescription>
-                    {project.projectDescription}
-                  </CardDescription>{" "}
-                  {type === "hosted" && (
-                    <CardFooter>
-                      {/* <Button variant="outline" className="w-8 h-8 rounded-full" asChild>
-                        <Link href={`/project/${project._id}/join-requests`}>
-                          {"->"}
-                        </Link>
-                      </Button> */}
-                    </CardFooter>
-                  )}
-                </CardHeader>
-              </Card>
-            </Link>
-          ))
-        ) : (
-          <p>No Projects to Show.</p>
-        )}
-      </div>
+    <div className="grid auto-grid gap-3 items-start">
+      {projects.length > 0 ? (
+        projects.map((project) => (
+          <Link
+            href={`/project/${project._id.toString()}`}
+            key={project._id.toString()}
+          >
+            <Card className="hover:bg-border/30 transition-all">
+              <CardHeader>
+                <CardTitle>{project.projectName}</CardTitle>
+                <CardDescription>{project.projectDescription}</CardDescription>
+              </CardHeader>
+            </Card>
+          </Link>
+        ))
+      ) : (
+        <p>No Projects to Show.</p>
+      )}
+    </div>
   );
 };
 

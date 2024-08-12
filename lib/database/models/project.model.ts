@@ -1,7 +1,7 @@
 import { Schema, model, Document, models, Types } from "mongoose";
 
 // Define the TypeScript interface for Task
-interface ITask {
+export interface ITask {
   task: string;
   assignedPeople: string[]; // Array of Clerk user IDs
 }

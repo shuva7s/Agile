@@ -70,7 +70,7 @@
 
 @layer utilities {
   .wrapper {
-    @apply mx-12;
+    @apply mx-5 md:mx-12;
   }
   .auto-grid {
     /* grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); */
@@ -81,5 +81,14 @@
   }
   .fl-col-center {
     @apply min-h-screen flex flex-col justify-center items-center;
+  }
+  .member-list {
+    @apply flex flex-col mt-6;
+  }
+  .member-list li {
+    @apply px-2 py-4 border-b hover:bg-border transition-all rounded-lg;
+  }
+  .member-list li:last-child {
+    @apply border-0;
   }
 }
