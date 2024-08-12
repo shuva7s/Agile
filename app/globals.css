@@ -73,7 +73,6 @@
     @apply mx-5 md:mx-12;
   }
   .auto-grid {
-    /* grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); */
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   }
   .fl-center {

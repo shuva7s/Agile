@@ -1,5 +1,12 @@
 "use server";
-import Project from "../database/models/project.model";
+import { currentUser } from "@clerk/nextjs/server";
+import Project, {
+  IJoinRequest,
+  ILog,
+  IPerson,
+  IProject,
+  ITask,
+} from "../database/models/project.model";
 import User from "../database/models/user.model";
 import { connectToDatabase } from "../database/mongoose";
 import { handleError } from "../utils";
@@ -40,43 +47,132 @@ export async function getProjectById(projectId: string) {
     return null;
   }
 }
-export async function getHostedProjectsByClerkUserId(currentClerkUser: string) {
+
+// Function to get hosted projects by Clerk user ID
+// export async function getHostedProjectsByClerkUserId(
+//   userId: string,
+//   limit: number,
+//   offset: number
+// ) {
+//   try {
+//     await connectToDatabase();
+//     const projects = await Project.find({ hostClerkId: userId })
+//       .sort({ createdAt: -1 })
+//       .skip(offset)
+//       .limit(limit)
+//       .lean<IProject[]>()
+//       .exec();
+
+//     // Convert ObjectId and Date fields to plain types
+//     return JSON.stringify(projects);
+//   } catch (error) {
+//     console.error("Error fetching hosted projects:", error);
+//     return [];
+//   }
+// }
+
+// // Function to get working-on projects by Clerk user ID
+// export async function getWorkingOnProjectsByClerkId(
+//   userId: string,
+//   limit: number,
+//   offset: number
+// ) {
+//   try {
+//     await connectToDatabase();
+//     const projects = await Project.find({ "people.userId": userId })
+//       .sort({ createdAt: -1 })
+//       .skip(offset)
+//       .limit(limit)
+//       .lean<IProject[]>()
+//       .exec();
+//     return JSON.stringify(projects);
+//   } catch (error) {
+//     console.error("Error fetching working-on projects:", error);
+//     return [];
+//   }
+// }
+
+// export async function fetchProjects(
+//   type: "hosted" | "working",
+//   page: number,
+//   limit: number
+// ): Promise<{ projects: IProject[]; hasMoreProjects: boolean }> {
+//   try {
+//     const user = await currentUser();
+//     const userId = user?.id || "";
+//     const offset = (page - 1) * limit;
+
+//     // Fetch projects as JSON strings
+//     const projectsJson =
+//       type === "hosted"
+//         ? await getHostedProjectsByClerkUserId(userId, limit, offset)
+//         : await getWorkingOnProjectsByClerkId(userId, limit, offset);
+
+//     // Parse JSON strings to objects
+//     const projects: IProject[] = JSON.parse(projectsJson as any);
+
+//     const hasMoreProjects = projects.length === limit;
+
+//     return { projects, hasMoreProjects };
+//   } catch (error) {
+//     handleError(error);
+//     return { projects: [], hasMoreProjects: false };
+//   }
+// }
+
+export async function fetchProjects(
+  type: "hosted" | "working",
+  page: number,
+  limit: number
+): Promise<{ projects: IProject[]; hasMoreProjects: boolean }> {
   try {
     await connectToDatabase();
+    const user = await currentUser();
+    const userId = user?.id || "";
+    const offset = (page - 1) * limit;
 
-    // Find the user by their Clerk user ID
-    const user = await User.findOne({ clerkId: currentClerkUser })
-      .populate("hostedProjects") // Populates the hostedProjects with actual project data
-      .exec();
+    let projectsJson: string;
+    let totalProjectsCount: number;
 
-    // If the user is not found or has no hosted projects, return an empty array
-    if (!user || !user.hostedProjects) {
-      return [];
+    if (type === "hosted") {
+      // Fetch projects as JSON string and count for hosted projects
+      projectsJson = JSON.stringify(
+        await Project.find({ hostClerkId: userId })
+          .sort({ createdAt: -1 })
+          .skip(offset)
+          .limit(limit)
+          .lean<IProject[]>()
+          .exec()
+      );
+
+      totalProjectsCount = await Project.countDocuments({
+        hostClerkId: userId,
+      });
+    } else {
+      // Fetch projects as JSON string and count for working-on projects
+      projectsJson = JSON.stringify(
+        await Project.find({ "people.userId": userId })
+          .sort({ createdAt: -1 })
+          .skip(offset)
+          .limit(limit)
+          .lean<IProject[]>()
+          .exec()
+      );
+
+      totalProjectsCount = await Project.countDocuments({
+        "people.userId": userId,
+      });
     }
 
-    // Return the list of hosted projects
-    return JSON.parse(JSON.stringify(user.hostedProjects));
+    // Parse JSON string to objects
+    const projects: IProject[] = JSON.parse(projectsJson);
+
+    // Determine if there are more projects to load
+    const hasMoreProjects = offset + limit < totalProjectsCount;
+
+    return { projects, hasMoreProjects };
   } catch (error) {
-    handleError(error);
-    return [];
-  }
-}
-
-export async function getWorkingOnProjectsByClerkId(clerkId: string | null) {
-  try {
-    await connectToDatabase();
-
-    if (!clerkId) {
-      return [];
-    }
-
-    // Find all projects where the people array contains an object with the matching userId
-    const projects = await Project.find({ "people.userId": clerkId }).exec();
-
-    // Return the list of projects
-    return JSON.parse(JSON.stringify(projects));
-  } catch (error) {
-    handleError(error);
-    return [];
+    console.error("Error fetching projects:", error);
+    return { projects: [], hasMoreProjects: false };
   }
 }
