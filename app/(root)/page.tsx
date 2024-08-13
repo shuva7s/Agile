@@ -12,7 +12,7 @@ export default async function Home() {
           <div className="wrapper min-h-screen">
             <div className="flex flex-row gap-2 sm:hidden">
               <Button asChild className="w-1/2 min-h-16" variant="outline">
-                <Link className="text-xl font-light" href="/new">
+                <Link className="font-light" href="/new">
                   Create
                 </Link>
               </Button>
@@ -21,7 +21,7 @@ export default async function Home() {
                 className="w-1/2 min-h-16 bg-border/40 hover:bg-border/50"
                 variant="secondary"
               >
-                <Link className="text-xl font-light" href="/join">
+                <Link className="font-light" href="/join">
                   Join
                 </Link>
               </Button>
