@@ -65,7 +65,7 @@ const ProjectsContainer = ({ type }: ProjectsContainerProps) => {
   };
 
   return (
-    <div className="grid auto-grid gap-4">
+    <div className="grid grid-cols-1 sm:auto-grid gap-4">
       {loading && <ProjectCardLoad count={5} />}
       {!loading && projects.length > 0 && (
         <>

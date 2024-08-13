@@ -63,7 +63,7 @@ export function JoinProjectForm() {
           name="searchingProjectId"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Search Project by ID</FormLabel>
+              <FormLabel>Enter a valid project ID</FormLabel>
               <FormControl>
                 <Input placeholder="Enter Project Id" {...field} />
               </FormControl>
@@ -71,7 +71,7 @@ export function JoinProjectForm() {
             </FormItem>
           )}
         />
-        <Button type="submit" disabled={!form.formState.isValid}>
+        <Button className="w-full" type="submit" disabled={!form.formState.isValid}>
           Search
         </Button>
       </form>

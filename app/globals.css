@@ -66,11 +66,18 @@
   body {
     @apply bg-background text-foreground;
   }
+  .dark .invert{
+    filter: invert(1);
+  }
 }
 
 @layer utilities {
   .wrapper {
     @apply mx-5 md:mx-12;
+  }
+  main,
+  footer {
+    @apply max-w-[1400px] mx-auto;
   }
   .auto-grid {
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));

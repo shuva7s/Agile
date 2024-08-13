@@ -11,7 +11,7 @@ const ProjectCardLoad = ({ count }: ProjectCardLoadProps) => {
   return (
     <>
       {skeletons.map((_, index) => (
-        <Skeleton key={index} className="w-full min-h-32" />
+        <Skeleton key={index} className="w-full min-h-40" />
       ))}
     </>
   );

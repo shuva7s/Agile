@@ -1,32 +1,89 @@
 import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import ProjectsContainer from "@/components/shared/ProjectsContainer";
-import { currentUser } from "@clerk/nextjs/server";
 import NetwokConnetionSLow from "@/components/shared/NetwokConnetionSLow";
 import Link from "next/link";
+import Image from "next/image";
 export default async function Home() {
   try {
-    const user = await currentUser();
     return (
       <main>
         <SignedIn>
           <div className="wrapper min-h-screen">
+            <div className="flex flex-row gap-2 sm:hidden">
+              <Button asChild className="w-1/2 min-h-16" variant="outline">
+                <Link className="text-xl font-light" href="/new">
+                  Create
+                </Link>
+              </Button>
+              <Button
+                asChild
+                className="w-1/2 min-h-16 bg-border/40 hover:bg-border/50"
+                variant="secondary"
+              >
+                <Link className="text-xl font-light" href="/join">
+                  Join
+                </Link>
+              </Button>
+            </div>
             <section>
-              <div className="flex justify-between items-center">
-                <h2 className="font-semibold text-2xl my-6">
-                  Projects Hosted By You
-                </h2>
-                <Button asChild className="font-medium">
-                  <Link href="/new">Create Project</Link>
+              <div className="flex flex-row justify-between items-center gap-6 py-3 my-3">
+                <h2 className="font-semibold text-2xl">Hosted by You</h2>
+                <Button
+                  asChild
+                  className="font-medium rounded-full sm:hidden" // Hidden on small screens and visible on larger screens
+                  size="icon"
+                  variant="secondary"
+                >
+                  <Link href="/new">
+                    <Image
+                      src="/add.svg"
+                      width={17}
+                      height={17}
+                      alt="add"
+                      className="invert opacity-55"
+                    />
+                  </Link>
+                </Button>
+
+                <Button
+                  asChild
+                  className="font-medium hidden sm:flex items-center space-x-2"
+                >
+                  <Link href="/new">
+                    <span>Create project</span>
+                  </Link>
                 </Button>
               </div>
               <ProjectsContainer type={"hosted"} />
             </section>
             <section>
-              <div className="flex justify-between items-center">
-                <h2 className="font-semibold text-2xl my-6">Working on</h2>
-                <Button asChild className="font-medium">
-                  <Link href="/join">Join Project</Link>
+              <div className="flex flex-row justify-between items-center gap-6 py-3 my-3">
+                <h2 className="font-semibold text-2xl">Working on</h2>
+                <Button
+                  asChild
+                  className="font-medium rounded-full sm:hidden" // Hidden on small screens and visible on larger screens
+                  size="icon"
+                  variant="secondary"
+                >
+                  <Link href="/join">
+                    <Image
+                      src="/join.svg"
+                      width={17}
+                      height={17}
+                      alt="add"
+                      className="invert opacity-55"
+                    />
+                  </Link>
+                </Button>
+
+                <Button
+                  asChild
+                  className="font-medium hidden sm:flex items-center space-x-2"
+                >
+                  <Link href="/join">
+                    <span>Join project</span>
+                  </Link>
                 </Button>
               </div>
               <ProjectsContainer type={"working"} />
