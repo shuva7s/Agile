@@ -9,8 +9,8 @@ export default async function Home() {
     return (
       <main>
         <SignedIn>
-          <div className="wrapper min-h-screen">
-            <div className="flex flex-row gap-2 sm:hidden">
+          <div className="min-h-screen">
+            <div className="wrapper flex flex-row gap-2 sm:hidden">
               <Button asChild className="w-1/2 min-h-16" variant="outline">
                 <Link className="font-light" href="/new">
                   Create
@@ -27,7 +27,7 @@ export default async function Home() {
               </Button>
             </div>
             <section>
-              <div className="flex flex-row justify-between items-center gap-6 py-3 my-3">
+              <div className="wrapper flex flex-row justify-between items-center gap-6 py-3 my-3">
                 <h2 className="font-semibold text-2xl">Hosted by You</h2>
                 <Button
                   asChild
@@ -58,7 +58,7 @@ export default async function Home() {
               <ProjectsContainer type={"hosted"} />
             </section>
             <section>
-              <div className="flex flex-row justify-between items-center gap-6 py-3 my-3">
+              <div className="wrapper flex flex-row justify-between items-center gap-6 py-3 my-3">
                 <h2 className="font-semibold text-2xl">Working on</h2>
                 <Button
                   asChild
