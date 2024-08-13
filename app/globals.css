@@ -75,9 +75,6 @@
   .wrapper {
     @apply mx-5 md:mx-12;
   }
-  .wrapper_nogap {
-    @apply mx-5;
-  }
   main,
   footer {
     @apply max-w-[1400px] mx-auto;

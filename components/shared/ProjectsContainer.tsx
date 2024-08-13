@@ -65,7 +65,7 @@ const ProjectsContainer = ({ type }: ProjectsContainerProps) => {
   };
 
   return (
-    <div className="sm:wrapper grid grid-cols-1 sm:auto-grid gap-4 min-h-[40vh] items-start">
+    <div className="mx-1 sm:wrapper grid grid-cols-1 sm:auto-grid gap-4 min-h-[40vh] items-start">
       {loading && <ProjectCardLoad count={5} />}
       {!loading && projects.length > 0 && (
         <>
@@ -100,3 +100,4 @@ const ProjectsContainer = ({ type }: ProjectsContainerProps) => {
 };
 
 export default ProjectsContainer;
+
