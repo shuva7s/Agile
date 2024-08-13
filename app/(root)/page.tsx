@@ -1,14 +1,12 @@
 import { SignInButton, SignedIn, SignedOut } from "@clerk/nextjs";
 import { Button } from "@/components/ui/button";
 import ProjectsContainer from "@/components/shared/ProjectsContainer";
-import ProjectCardLoad from "@/components/shared/ProjectCardLoad";
 import { currentUser } from "@clerk/nextjs/server";
 import NetwokConnetionSLow from "@/components/shared/NetwokConnetionSLow";
 import Link from "next/link";
 export default async function Home() {
   try {
     const user = await currentUser();
-    const userId = user?.id || "";
     return (
       <main>
         <SignedIn>

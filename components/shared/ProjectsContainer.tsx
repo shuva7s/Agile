@@ -16,79 +16,84 @@ const ProjectsContainer = ({ type }: ProjectsContainerProps) => {
   const [loading, setLoading] = useState(true);
   const [page, setPage] = useState(1);
   const [hasMoreProjects, setHasMoreProjects] = useState(true);
-  const [isMounted, setIsMounted] = useState(false);
-  const [skeletonCount, setSkeletonCount] = useState(5); // Initial number of skeletons
+  const [loadingMore, setLoadingMore] = useState(false);
 
+  // Fetch projects on initial load and when `type` changes
   useEffect(() => {
-    setIsMounted(true);
-  }, []);
+    let isMounted = true;
+    async function fetchData() {
+      setLoading(true);
+      try {
+        const { projects: fetchedProjects, hasMoreProjects } =
+          await fetchProjects(type, 1, 5); // Always fetch the first page
+        if (isMounted) {
+          setProjects(fetchedProjects);
+          setHasMoreProjects(hasMoreProjects);
+          setPage(1); // Reset to the first page
+        }
+      } catch (error) {
+        console.error("Error fetching data SERVER ACTION PROJECTS:", error);
+      } finally {
+        if (isMounted) setLoading(false);
+      }
+    }
+    fetchData();
 
-  useEffect(() => {
-    if (!isMounted) return;
-
-    const loadProjects = async () => {
-      const { projects: fetchedProjects, hasMoreProjects } =
-        await fetchProjects(type, page, 5);
-      setProjects(fetchedProjects);
-      setHasMoreProjects(hasMoreProjects);
-      setLoading(false);
+    return () => {
+      isMounted = false; // Cleanup to prevent state updates on unmounted components
     };
-    loadProjects();
-  }, [isMounted, type]);
+  }, [type]); // Fetch data only when `type` changes
 
+  // Function to handle pagination and loading more projects
   const handleShowMore = async () => {
-    setLoading(true);
+    setLoadingMore(true); // Set loadingMore to true when loading more projects
     const nextPage = page + 1;
-    const { projects: moreProjects, hasMoreProjects } = await fetchProjects(
-      type,
-      nextPage,
-      5
-    );
-    setProjects((prevProjects) => [...prevProjects, ...moreProjects]);
-    setPage(nextPage);
-    setHasMoreProjects(hasMoreProjects);
-    setLoading(false);
-    setSkeletonCount((prevCount) => {
-      const newCount = prevCount + 5;
-      return newCount;
-    });
+    try {
+      const { projects: moreProjects, hasMoreProjects } = await fetchProjects(
+        type,
+        nextPage,
+        5
+      );
+      setProjects((prevProjects) => [...prevProjects, ...moreProjects]);
+      setPage(nextPage);
+      setHasMoreProjects(hasMoreProjects);
+    } catch (error) {
+      console.error("Error fetching more projects:", error);
+    } finally {
+      setLoadingMore(false); // Set loadingMore to false after loading more projects
+    }
   };
 
-  if (!isMounted) return <ProjectCardLoad count={skeletonCount} />; // Show initial number of skeletons
-
   return (
-    <div className="grid auto-grid gap-3">
-      {loading ? (
-        <ProjectCardLoad count={skeletonCount} /> // Show updated number of skeletons while loading
-      ) : (
+    <div className="grid auto-grid gap-4">
+      {loading && <ProjectCardLoad count={5} />}
+      {!loading && projects.length > 0 && (
         <>
-          {projects.length > 0 ? (
-            projects.map((project) => (
-              <Link
-                href={`/project/${project._id.toString()}`}
-                key={project._id.toString()}
-              >
-                <Card className="hover:bg-border/30 transition-all min-h-32">
-                  <CardHeader>
-                    <CardTitle>{project.projectName}</CardTitle>
-                    <CardDescription>
-                      {project.projectDescription}
-                    </CardDescription>
-                  </CardHeader>
-                </Card>
-              </Link>
-            ))
-          ) : (
-            <p>No Projects to Show.</p>
-          )}
-          {!loading && hasMoreProjects && (
-            <div className="min-h-32 flex justify-center items-center">
-              <Button variant="link" onClick={handleShowMore}>
-                Show More
-              </Button>
-            </div>
-          )}
+          {projects.map((project) => (
+            <Link
+              href={`/project/${project._id.toString()}`}
+              key={project._id.toString()}
+            >
+              <Card className="min-h-40 bg-border/15 hover:border-primary/25 transition-all">
+                <CardHeader>
+                  <CardTitle>{project.projectName}</CardTitle>
+                  <CardDescription>
+                    {project.projectDescription}
+                  </CardDescription>
+                </CardHeader>
+              </Card>
+            </Link>
+          ))}
+          {loadingMore && <ProjectCardLoad count={5} />}
         </>
+      )}
+      {!loading && projects.length === 0 && <p>No Projects to Show.</p>}
+      {!loading && hasMoreProjects && (
+        <div className="min-h-40 flex justify-center items-center">
+          <Button variant="link" onClick={handleShowMore}>
+            Show More
+          </Button>
+        </div>
       )}
     </div>
   );
