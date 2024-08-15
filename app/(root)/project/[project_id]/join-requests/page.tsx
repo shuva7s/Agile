@@ -2,9 +2,10 @@ import { getProjectById } from "@/lib/actions/project.actions";
 import { currentUser } from "@clerk/nextjs/server";
 import GoBack from "@/components/shared/GoBack";
 import { IJoinRequest } from "@/lib/database/models/project.model";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader, CardContent } from "@/components/ui/card";
 import NetwokConnetionSLow from "@/components/shared/NetwokConnetionSLow";
 import HandleJoinReqForm from "@/components/shared/HandleJoinReqForm";
+import Image from "next/image";
 
 export default async function JoinRequests({
   params,
@@ -15,8 +16,6 @@ export default async function JoinRequests({
     const user = await currentUser();
     const userId = user?.id || "";
     const projectData = await getProjectById(params.project_id);
-    console.log(userId);
-    console.log(projectData.hostClerkId);
     return (
       <main>
         <section className="wrapper">
@@ -32,16 +31,28 @@ export default async function JoinRequests({
               <div className="mt-6">
                 {projectData.joinRequests.length > 0 ? (
                   projectData.joinRequests.map((req: IJoinRequest) => (
-                    <Card
-                      key={req._id.toString()}
-                      className=" px-4 py-2.5 flex flex-col gap-1.5 hover:bg-border/30 transition-all"
-                    >
-                      <p className="text-xl font-semibold">@{req.username}</p>
-                      <p>~{req.userId}</p>
-                      <HandleJoinReqForm
-                        reqId={req._id.toString()}
-                        projectId={params.project_id}
-                      />
+                    <Card key={req._id.toString()}>
+                      <CardHeader className="flex flex-row gap-2 items-center">
+                        <Image
+                          src={req.userImage}
+                          width={50}
+                          height={50}
+                          alt="userimage"
+                          className="rounded-full"
+                        />
+                        <div>
+                          <p className="text-xl font-semibold">
+                            @{req.username}
+                          </p>
+                          <p className="text-xs">~{req.userId}</p>
+                        </div>
+                      </CardHeader>
+                      <CardContent className="p-0 pt-4">
+                        <HandleJoinReqForm
+                          reqId={req._id.toString()}
+                          projectId={params.project_id}
+                        />
+                      </CardContent>
                     </Card>
                   ))
                 ) : (

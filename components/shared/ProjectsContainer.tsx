@@ -3,10 +3,24 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { fetchProjects } from "@/lib/actions/project.actions";
-import { Card, CardDescription, CardHeader, CardTitle } from "../ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "../ui/card";
 import { IProject } from "@/lib/database/models/project.model";
 import ProjectCardLoad from "./ProjectCardLoad";
-
+import * as React from "react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import Image from "next/image";
+import { Badge } from "../ui/badge";
 type ProjectsContainerProps = {
   type: "hosted" | "working";
 };
@@ -76,11 +90,64 @@ const ProjectsContainer = ({ type }: ProjectsContainerProps) => {
             >
               <Card className="min-h-40 bg-border/15 hover:border-primary/25 transition-all">
                 <CardHeader>
-                  <CardTitle>{project.projectName}</CardTitle>
+                  <CardTitle className="flex justify-between items-center">
+                    {project.projectName}
+                    {type === "hosted" && (
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <div className="min-w-8 min-h-8 flex justify-center items-center rounded-full hover:bg-secondary/50">
+                            <Image
+                              src="threeDot.svg"
+                              width={17}
+                              height={17}
+                              alt="menu"
+                              className="inv opacity-55"
+                            />
+                          </div>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                          <DropdownMenuItem>
+                            <Link
+                              className="flex gap-4 items-center"
+                              href={`/project/${project._id.toString()}/join-requests`}
+                            >
+                              Join requests
+                              {project.joinRequests.length > 0 && (
+                                <Badge>{project.joinRequests.length}</Badge>
+                              )}
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Link
+                              href={`/project/${project._id.toString()}/members`}
+                            >
+                              Members
+                            </Link>
+                          </DropdownMenuItem>
+                          <DropdownMenuItem>
+                            <Link
+                              href={`/project/${project._id.toString()}/settings`}
+                            >
+                              Settings
+                            </Link>
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
+                    )}
+                  </CardTitle>
                   <CardDescription>
                     {project.projectDescription}
                   </CardDescription>
                 </CardHeader>
+                <CardContent className="border-2 px-0">
+                  {project.joinRequests.length > 0 && (
+                    <Link
+                      href={`/project/${project._id.toString()}/join-requests`}
+                    >
+                      Join requests: {project.joinRequests.length}
+                    </Link>
+                  )}
+                </CardContent>
               </Card>
             </Link>
           ))}
@@ -100,4 +167,3 @@ const ProjectsContainer = ({ type }: ProjectsContainerProps) => {
 };
 
 export default ProjectsContainer;
-

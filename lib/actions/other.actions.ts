@@ -9,12 +9,14 @@ interface SendJoinReqProps {
   projectId: string;
   senderId: string; // Clerk user ID
   senderUsername: string; // Clerk username
+  userImage: string;
 }
 
 export async function sendReq({
   projectId,
   senderId,
   senderUsername,
+  userImage,
 }: SendJoinReqProps) {
   try {
     await connectToDatabase();
@@ -25,7 +27,11 @@ export async function sendReq({
       return "Project not found";
     }
     // Add the new join request
-    project.joinRequests.push({ userId: senderId, username: senderUsername });
+    project.joinRequests.push({
+      userId: senderId,
+      username: senderUsername,
+      userImage: userImage,
+    });
     await project.save();
     return "Join request sent successfully";
   } catch {
@@ -58,47 +64,10 @@ export async function hasUserRequested(
   }
 }
 
-// export async function acceptReqById(reqId: string, projectId: string) {
-//   try {
-//     await connectToDatabase();
-//     const project = await Project.findById(projectId);
-//     const joinRequest = project.joinRequests.id(reqId);
-//     project.people.push({
-//       userId: joinRequest.userId,
-//       username: joinRequest.username,
-//     });
-
-//     project.joinRequests.pull({ _id: reqId });
-//     await project.save();
-//     const user = await User.findOne({ clerkId: joinRequest.userId });
-//     if (user) {
-//       user.workingOnProjects.push(project._id);
-//       await user.save();
-//     }
-//   } catch (error) {
-//     handleError(error);
-//   }
-// }
-
-// export async function deleteRequestById(
-//   req_id: string,
-//   projectId: string
-// ): Promise<void> {
-//   try {
-//     await connectToDatabase();
-//     await Project.updateOne(
-//       { _id: projectId, "joinRequests._id": req_id },
-//       { $pull: { joinRequests: { _id: req_id } } }
-//     );
-//   } catch (error) {
-//     handleError(error);
-//   }
-// }
-
 export async function handleJoinRequest({
-  reqId,
-  projectId,
-  type,
+  reqId,//object_id
+  projectId, //project_id
+  type, //accept or reject
 }: {
   reqId: string;
   projectId: string;
@@ -123,6 +92,7 @@ export async function handleJoinRequest({
       project.people.push({
         userId: joinRequest.userId,
         username: joinRequest.username,
+        userImage: joinRequest.userImage,
       });
 
       // Add the project to the user's workingOnProjects array
@@ -141,14 +111,16 @@ export async function handleJoinRequest({
   }
 }
 
-export async function getUsernameByClerkId(clerkId: string) {
+export async function getHostInfoByClerkId(clerkId: string) {
   try {
-    // Query the database to find the user with the given clerkId
-    const user = await User.findOne({ clerkId }).select("username");
-    return user ? user.username : "";
+    // Query the database to find the user with the given clerkId and select both username and userImage
+    const user = await User.findOne({ clerkId }).select("username photo");
+    
+    // Return the username and photo if the user is found, otherwise return an empty string and null
+    return user ? { hostname: user.username, hostPhoto: user.photo } : { hostname: "", hostPhoto: "" };
   } catch (error) {
     handleError(error);
-    return "";
+    return { hostname: "", hostPhoto: "" };
   }
 }
 

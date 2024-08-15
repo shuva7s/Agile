@@ -10,7 +10,7 @@ export default async function Home() {
       <main>
         <SignedIn>
           <div className="min-h-screen">
-            <div className="wrapper flex flex-row gap-2 sm:hidden">
+            <div className="mt-6 wrapper flex flex-row gap-2 sm:hidden">
               <Button asChild className="w-1/2 min-h-16" variant="outline">
                 <Link className="font-light" href="/new">
                   Create
@@ -41,7 +41,7 @@ export default async function Home() {
                       width={17}
                       height={17}
                       alt="add"
-                      className="invert opacity-55"
+                      className="inv opacity-55"
                     />
                   </Link>
                 </Button>
@@ -72,7 +72,7 @@ export default async function Home() {
                       width={17}
                       height={17}
                       alt="add"
-                      className="invert opacity-55"
+                      className="inv opacity-55"
                     />
                   </Link>
                 </Button>

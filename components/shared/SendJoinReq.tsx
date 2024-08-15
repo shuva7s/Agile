@@ -9,12 +9,14 @@ type SendJoinReqProps = {
   projectId: string;
   senderId: string;
   senderUsername: string;
+  userImage: string;
 };
 
 export default function SendJoinReq({
   projectId,
   senderId,
   senderUsername,
+  userImage,
 }: SendJoinReqProps) {
   const { toast } = useToast();
   const router = useRouter();
@@ -25,6 +27,7 @@ export default function SendJoinReq({
         projectId,
         senderId,
         senderUsername,
+        userImage
       });
       if (responseMessage === "Join request sent successfully") {
         toast({

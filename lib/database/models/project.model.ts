@@ -1,4 +1,5 @@
 import { Schema, model, Document, models, Types } from "mongoose";
+import { string } from "zod";
 
 // Define the TypeScript interface for Task
 export interface ITask {
@@ -14,17 +15,10 @@ export interface ILog {
   logCreationTime: Date;
 }
 
-// Define the TypeScript interface for JoinRequest
-export interface IJoinRequest {
-  _id: Types.ObjectId;
-  userId: string;
-  username: string;
-  accepted: boolean; // New field to track acceptance status
-}
-
 // Define the TypeScript interface for People
 export interface IPerson {
-  _id:Types.ObjectId;
+  _id: Types.ObjectId;
+  userImage: string;
   userId: string;
   username: string;
 }
@@ -42,6 +36,9 @@ export interface IProject extends Document {
   testing: ITask[]; // Array of tasks for testing
   done: ITask[]; // Array of tasks for done
   joinRequests: IJoinRequest[]; // Array of join request objects
+  timeSlice: number; // New field for time slices
+  hasStarted: boolean; // New field to track if the project has started
+  requirements: ITask[]; // Array of tasks as requirements
   createdAt?: Date;
   updatedAt?: Date;
 }
@@ -81,13 +78,23 @@ const TaskSchema = new Schema<ITask>({
   ],
 });
 
-// Define the Mongoose schema for JoinRequest
+export interface IJoinRequest {
+  _id: Types.ObjectId;
+  userId: string;
+  username: string;
+  userImage: string;
+  accepted: boolean; // New field to track acceptance status
+}
 const JoinRequestSchema = new Schema<IJoinRequest>({
   userId: {
     type: String,
     required: true,
   },
   username: {
+    type: String,
+    required: true,
+  },
+  userImage: {
     type: String,
     required: true,
   },
@@ -100,6 +107,10 @@ const JoinRequestSchema = new Schema<IJoinRequest>({
 
 // Define the Mongoose schema for Person
 const PersonSchema = new Schema<IPerson>({
+  userImage: {
+    type: String,
+    required: true,
+  },
   userId: {
     type: String,
     required: true,
@@ -130,6 +141,15 @@ const ProjectSchema = new Schema<IProject>({
   testing: [TaskSchema], // Array of Task objects for testing
   done: [TaskSchema], // Array of Task objects for done
   joinRequests: [JoinRequestSchema], // Array of JoinRequest objects
+  timeSlice: {
+    type: Number,
+    default: 0,
+  },
+  hasStarted: {
+    type: Boolean,
+    default: false,
+  },
+  requirements: [TaskSchema], // Array of Task objects for requirements
   createdAt: {
     type: Date,
     default: Date.now,

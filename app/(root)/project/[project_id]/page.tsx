@@ -17,6 +17,7 @@ export default async function projectDynamic({
     const user = await currentUser();
     const userId = user?.id || "";
     const userName = user?.username || "";
+    const userImage = user?.imageUrl || "";
 
     if (!projectData) {
       return (
@@ -80,6 +81,7 @@ export default async function projectDynamic({
                     projectId={params.project_id}
                     senderId={userId}
                     senderUsername={userName}
+                    userImage={userImage}
                   />
                 </>
               )}
