@@ -88,7 +88,7 @@ const ProjectsContainer = ({ type }: ProjectsContainerProps) => {
               href={`/project/${project._id.toString()}`}
               key={project._id.toString()}
             >
-              <Card className="min-h-40 bg-border/15 hover:border-primary/25 transition-all">
+              <Card className="min-h-40 hover:bg-primary/5 transition-all">
                 <CardHeader>
                   <CardTitle className="flex justify-between items-center">
                     {project.projectName}
@@ -139,7 +139,7 @@ const ProjectsContainer = ({ type }: ProjectsContainerProps) => {
                     {project.projectDescription}
                   </CardDescription>
                 </CardHeader>
-                <CardContent className="border-2 px-0">
+                <CardContent className="">
                   {project.joinRequests.length > 0 && (
                     <Link
                       href={`/project/${project._id.toString()}/join-requests`}

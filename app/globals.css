@@ -82,6 +82,9 @@
   .auto-grid {
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
   }
+  .auto-grid-small {
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  }
   .fl-center {
     @apply min-h-screen flex justify-center items-center;
   }
