@@ -28,9 +28,9 @@ export default async function Home() {
           </div>
         </SignedIn>
         <SignedOut>
-          <div className="wrapper min-h-screen flex flex-col justify-center items-center">
-            <p className="font-semibold text-xl">Agile</p>
-            <p>Manage Your Orojects With Ease</p>
+          <div className="wrapper min-h-screen flex flex-col gap-4 justify-center items-center">
+            <p className="font-semibold text-4xl">Agile</p>
+            <p className="text-xl text-muted-foreground">Manage Your Projects With Ease</p>
             <SignInButton>
               <Button>Sign In</Button>
             </SignInButton>
