@@ -46,8 +46,8 @@ export function CopyLink({
         <DialogHeader>
           <DialogTitle>Share link</DialogTitle>
           <DialogDescription>
-            Anyone who wants to join, send this link, using this they can
-            send a join request to the host.
+            Anyone who wants to join, send this link, using this they can send a
+            join request to the host.
           </DialogDescription>
         </DialogHeader>
         <div className="flex items-center space-x-2">
@@ -61,19 +61,19 @@ export function CopyLink({
               value={
                 buttonType === "code"
                   ? content
-                  : `http://localhost:3000/project/${content}`
+                  : // : `http://localhost:3000/project/${content}`
+                    `https://agile-one.vercel.app/project/${content}`
               }
               readOnly
             />
           </div>
-          <Button
-            type="button"
-            size="sm"
-            className="px-3"
-            onClick={handleCopy}
-          >
+          <Button type="button" size="sm" className="px-3" onClick={handleCopy}>
             <span className="sr-only">Copy</span>
-            {copied ? <Check className="h-4 w-4" /> : <Copy className="h-4 w-4" />}
+            {copied ? (
+              <Check className="h-4 w-4" />
+            ) : (
+              <Copy className="h-4 w-4" />
+            )}
           </Button>
         </div>
         <DialogFooter className="sm:justify-start">
