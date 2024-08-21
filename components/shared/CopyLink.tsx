@@ -29,7 +29,7 @@ export function CopyLink({
     const textToCopy =
       buttonType === "code"
         ? content
-        : `http://localhost:3000/project/${content}`;
+        : `https://agile-one.vercel.app/project/${content}`;
 
     navigator.clipboard.writeText(textToCopy).then(() => {
       setCopied(true);
@@ -68,7 +68,6 @@ export function CopyLink({
             />
           </div>
           <Button type="button" size="sm" className="px-3" onClick={handleCopy}>
-            <span className="sr-only">Copy</span>
             {copied ? (
               <Check className="h-4 w-4" />
             ) : (
