@@ -19,11 +19,11 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import Image from "next/image";
 import { Badge } from "../ui/badge";
 type ProjectsContainerProps = {
   type: "hosted" | "working";
 };
+import { Ellipsis } from "lucide-react";
 
 const ProjectsContainer = ({ type }: ProjectsContainerProps) => {
   const [projects, setProjects] = useState<IProject[]>([]);
@@ -95,15 +95,13 @@ const ProjectsContainer = ({ type }: ProjectsContainerProps) => {
                     {type === "hosted" && (
                       <DropdownMenu>
                         <DropdownMenuTrigger asChild>
-                          <div className="min-w-8 min-h-8 flex justify-center items-center rounded-full hover:bg-secondary/50">
-                            <Image
-                              src="threeDot.svg"
-                              width={17}
-                              height={17}
-                              alt="menu"
-                              className="inv opacity-55"
-                            />
-                          </div>
+                          <Button
+                            variant="outline"
+                            size="icon"
+                            className="border-0 onPrentHover"
+                          >
+                            <Ellipsis className="opacity-50 transition-all" />
+                          </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
                           <DropdownMenuItem>
@@ -154,7 +152,9 @@ const ProjectsContainer = ({ type }: ProjectsContainerProps) => {
           {loadingMore && <ProjectCardLoad count={5} />}
         </>
       )}
-      {!loading && projects.length === 0 && <p>No Projects to Show.</p>}
+      {!loading && projects.length === 0 && (
+        <p className="wrapper">No Projects to Show.</p>
+      )}
       {!loading && hasMoreProjects && (
         <div className="min-h-40 flex justify-center items-center">
           <Button variant="link" onClick={handleShowMore}>

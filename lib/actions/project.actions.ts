@@ -10,6 +10,7 @@ import Project, {
 import User from "../database/models/user.model";
 import { connectToDatabase } from "../database/mongoose";
 import { handleError } from "../utils";
+import { Types } from "mongoose";
 
 // CREATE
 export async function createProject(projectData: CreateProjectParams) {
@@ -102,5 +103,130 @@ export async function fetchProjects(
   } catch (error) {
     console.error("Error fetching projects:", error);
     return { projects: [], hasMoreProjects: false };
+  }
+}
+export async function getProjectRequirements(projectId: string) {
+  try {
+    await connectToDatabase();
+    if (!Types.ObjectId.isValid(projectId)) {
+      return [];
+    }
+    const project = await Project.findById(projectId).select("requirements");
+    if (!project || !project.requirements) {
+      return [];
+    }
+    return project.requirements.reverse(); // Return the array directly
+  } catch (error) {
+    handleError(error);
+    return [];
+  }
+}
+
+export async function addRequirement(
+  projectId: string,
+  taskName: string
+): Promise<string> {
+  try {
+    await connectToDatabase();
+
+    if (!Types.ObjectId.isValid(projectId)) {
+      return "invalid_id";
+    }
+
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return "not_found";
+    }
+
+    project.requirements.push({ task: taskName, assignedPeople: [] });
+
+    await project.save();
+    return "success";
+  } catch (error) {
+    handleError(error);
+    return "error";
+  }
+}
+
+export async function moveTaskToTodo(
+  projectId: string,
+  taskId: string
+): Promise<string> {
+  try {
+    await connectToDatabase();
+
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return "project_not_found";
+    }
+
+    const taskIndex = project.requirements.findIndex(
+      (task: ITask) => task._id.toString() === taskId
+    );
+    if (taskIndex === -1) {
+      return "task_not_found";
+    }
+
+    const task = project.requirements.splice(taskIndex, 1)[0];
+    project.todo.push(task);
+
+    await project.save();
+
+    return "success";
+  } catch (error) {
+    console.error("Error moving task to TODO:", error);
+    return "error";
+  }
+}
+
+export async function getAllTodos(projectId: string) {
+  try {
+    await connectToDatabase();
+
+    if (!Types.ObjectId.isValid(projectId)) {
+      return [];
+    }
+
+    const project = await Project.findById(projectId);
+
+    if (!project || !project.todo) {
+      return [];
+    }
+
+    return project.todo.reverse();
+  } catch (error) {
+    handleError(error);
+    return [];
+  }
+}
+
+export async function moveTaskBackToRequirements(
+  projectId: string,
+  taskId: string
+): Promise<string> {
+  try {
+    await connectToDatabase();
+
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return "project_not_found";
+    }
+
+    const taskIndex = project.todo.findIndex(
+      (task: ITask) => task._id.toString() === taskId
+    );
+    if (taskIndex === -1) {
+      return "task_not_found";
+    }
+
+    const task = project.todo.splice(taskIndex, 1)[0];
+    project.requirements.push(task);
+
+    await project.save();
+
+    return "success";
+  } catch (error) {
+    console.error("Error moving task back to Requirements:", error);
+    return "error";
   }
 }

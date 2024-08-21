@@ -1,11 +1,4 @@
 import { Schema, model, Document, models, Types } from "mongoose";
-import { string } from "zod";
-
-// Define the TypeScript interface for Task
-export interface ITask {
-  task: string;
-  assignedPeople: string[]; // Array of Clerk user IDs
-}
 
 // Define the Mongoose schema for Log
 export interface ILog {
@@ -13,34 +6,6 @@ export interface ILog {
   body: string;
   suffix: string;
   logCreationTime: Date;
-}
-
-// Define the TypeScript interface for People
-export interface IPerson {
-  _id: Types.ObjectId;
-  userImage: string;
-  userId: string;
-  username: string;
-}
-
-// Define the TypeScript interface for Project
-export interface IProject extends Document {
-  _id: Types.ObjectId; // Mongoose ObjectId type
-  hostClerkId: string;
-  projectName: string;
-  projectDescription?: string;
-  people: IPerson[]; // Array of objects storing both userId and username
-  logs: ILog[]; // Array of logs
-  todo: ITask[]; // Array of tasks for todo
-  inProgress: ITask[]; // Array of tasks for in-progress
-  testing: ITask[]; // Array of tasks for testing
-  done: ITask[]; // Array of tasks for done
-  joinRequests: IJoinRequest[]; // Array of join request objects
-  timeSlice: number; // New field for time slices
-  hasStarted: boolean; // New field to track if the project has started
-  requirements: ITask[]; // Array of tasks as requirements
-  createdAt?: Date;
-  updatedAt?: Date;
 }
 
 // Define the Mongoose schema for Log
@@ -64,6 +29,12 @@ const LogSchema = new Schema<ILog>({
   },
 });
 
+// Define the TypeScript interface for Task
+export interface ITask {
+  _id: Types.ObjectId; 
+  task: string;
+  assignedPeople: string[]; // Array of Clerk user IDs
+}
 // Define the Mongoose schema for Task
 const TaskSchema = new Schema<ITask>({
   task: {
@@ -80,13 +51,18 @@ const TaskSchema = new Schema<ITask>({
 
 export interface IJoinRequest {
   _id: Types.ObjectId;
-  userId: string;
+  senderClerkId: string;
+  senderMail: string;
   username: string;
   userImage: string;
   accepted: boolean; // New field to track acceptance status
 }
 const JoinRequestSchema = new Schema<IJoinRequest>({
-  userId: {
+  senderClerkId: {
+    type: String,
+    required: true,
+  },
+  senderMail: {
     type: String,
     required: true,
   },
@@ -105,12 +81,16 @@ const JoinRequestSchema = new Schema<IJoinRequest>({
   },
 });
 
+// Define the TypeScript interface for People
+export interface IPerson {
+  _id: Types.ObjectId;
+  userId: string;
+  username: string;
+  userEmail: string;
+  userImage: string;
+}
 // Define the Mongoose schema for Person
 const PersonSchema = new Schema<IPerson>({
-  userImage: {
-    type: String,
-    required: true,
-  },
   userId: {
     type: String,
     required: true,
@@ -119,7 +99,35 @@ const PersonSchema = new Schema<IPerson>({
     type: String,
     required: true,
   },
+  userEmail: {
+    type: String,
+    required: true,
+  },
+  userImage: {
+    type: String,
+    required: true,
+  },
 });
+
+// Define the TypeScript interface for Project
+export interface IProject extends Document {
+  _id: Types.ObjectId; // Mongoose ObjectId type
+  hostClerkId: string;
+  projectName: string;
+  projectDescription?: string;
+  people: IPerson[]; // Array of objects storing both userId and username
+  logs: ILog[]; // Array of logs
+  todo: ITask[]; // Array of tasks for todo
+  inProgress: ITask[]; // Array of tasks for in-progress
+  testing: ITask[]; // Array of tasks for testing
+  done: ITask[]; // Array of tasks for done
+  joinRequests: IJoinRequest[]; // Array of join request objects
+  timeSlice: number; // New field for time slices
+  hasStarted: boolean; // New field to track if the project has started
+  requirements: ITask[]; // Array of tasks as requirements
+  createdAt?: Date;
+  updatedAt?: Date;
+}
 
 // Define the Mongoose schema for Project
 const ProjectSchema = new Schema<IProject>({

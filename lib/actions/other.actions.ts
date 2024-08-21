@@ -1,20 +1,26 @@
 "use server";
 import { Types } from "mongoose";
-import Project, { IPerson, ITask } from "../database/models/project.model";
+import Project, {
+  IJoinRequest,
+  IPerson,
+  ITask,
+} from "../database/models/project.model";
 import User from "../database/models/user.model";
 import { connectToDatabase } from "../database/mongoose";
 import { handleError } from "../utils";
 
 interface SendJoinReqProps {
   projectId: string;
-  senderId: string; // Clerk user ID
+  senderClerkId: string;
+  senderMail: string; // Clerk user ID
   senderUsername: string; // Clerk username
   userImage: string;
 }
 
 export async function sendReq({
   projectId,
-  senderId,
+  senderClerkId,
+  senderMail,
   senderUsername,
   userImage,
 }: SendJoinReqProps) {
@@ -28,7 +34,8 @@ export async function sendReq({
     }
     // Add the new join request
     project.joinRequests.push({
-      userId: senderId,
+      senderClerkId: senderClerkId,
+      senderMail: senderMail,
       username: senderUsername,
       userImage: userImage,
     });
@@ -56,7 +63,7 @@ export async function hasUserRequested(
 
     // Check if senderId is in joinRequests by matching userId
     return project.joinRequests.some(
-      (request: any) => request.userId === senderId
+      (request: IJoinRequest) => request.senderClerkId === senderId
     );
   } catch (error) {
     console.error("Error checking join request status:", error);
@@ -65,7 +72,7 @@ export async function hasUserRequested(
 }
 
 export async function handleJoinRequest({
-  reqId,//object_id
+  reqId, //object_id
   projectId, //project_id
   type, //accept or reject
 }: {
@@ -90,9 +97,10 @@ export async function handleJoinRequest({
     if (type === "accept") {
       // Add the user to the people array
       project.people.push({
-        userId: joinRequest.userId,
+        userId: joinRequest.senderClerkId,
         username: joinRequest.username,
         userImage: joinRequest.userImage,
+        userEmail: joinRequest.senderMail,
       });
 
       // Add the project to the user's workingOnProjects array
@@ -113,14 +121,20 @@ export async function handleJoinRequest({
 
 export async function getHostInfoByClerkId(clerkId: string) {
   try {
-    // Query the database to find the user with the given clerkId and select both username and userImage
-    const user = await User.findOne({ clerkId }).select("username photo");
-    
-    // Return the username and photo if the user is found, otherwise return an empty string and null
-    return user ? { hostname: user.username, hostPhoto: user.photo } : { hostname: "", hostPhoto: "" };
+    // Query the database to find the user with the given clerkId and select username, photo, and email
+    const user = await User.findOne({ clerkId }).select("username photo email");
+
+    // Return the username, photo, and email if the user is found, otherwise return empty values
+    return user
+      ? {
+          hostname: user.username,
+          hostPhoto: user.photo,
+          hostEmail: user.email,
+        }
+      : { hostname: "", hostPhoto: "", hostEmail: "" };
   } catch (error) {
     handleError(error);
-    return { hostname: "", hostPhoto: "" };
+    return { hostname: "", hostPhoto: "", hostEmail: "" };
   }
 }
 

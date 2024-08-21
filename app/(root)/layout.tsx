@@ -3,13 +3,7 @@ import { Inter } from "next/font/google";
 import "../globals.css";
 import { ThemeProvider } from "@/components/shared/ThemeProvider";
 import Navbar from "@/components/shared/Navbar";
-import {
-  ClerkProvider,
-  SignInButton,
-  SignedIn,
-  SignedOut,
-  UserButton,
-} from "@clerk/nextjs";
+import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "@/components/ui/toaster";
 import Footer from "@/components/shared/Footer";
 export const metadata: Metadata = {

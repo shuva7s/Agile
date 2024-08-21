@@ -17,7 +17,7 @@ export default async function MemberPage({
     const projectData = await getProjectById(params.project_id);
     const user = await currentUser();
     const userId = user?.id || "";
-    const { hostname, hostPhoto } = await getHostInfoByClerkId(
+    const { hostname, hostPhoto, hostEmail} = await getHostInfoByClerkId(
       projectData.hostClerkId
     );
 
@@ -55,13 +55,16 @@ export default async function MemberPage({
                       alt="member-Image"
                       className="rounded-full"
                     />
-                    <p className="text-lg font-medium hover:underline">
-                      @
-                      {userId === projectData.hostClerkId
-                        ? "You"
-                        : `${hostname}`}
-                      <Badge className="ml-2">Host</Badge>
-                    </p>
+                    <div className="flex flex-col">
+                      <p className="text-lg font-medium">
+                        @
+                        {userId === projectData.hostClerkId
+                          ? "You"
+                          : `${hostname}`}
+                        <Badge className="ml-2">Host</Badge>
+                      </p>
+                      <p className="text-sm">{hostEmail}</p>
+                    </div>
                   </div>
                 </li>
                 {projectData.people.map((person: IPerson) => (
@@ -74,9 +77,13 @@ export default async function MemberPage({
                         alt="member-Image"
                         className="rounded-full"
                       />
-                      <p className="text-lg font-medium hover:underline">
-                        @{person.username}
-                      </p>
+
+                      <div className="flex flex-col">
+                        <p className="text-lg font-medium">
+                          @{person.username}
+                        </p>
+                        <p className="text-sm">{person.userEmail}</p>
+                      </div>
                     </div>
 
                     {userId === projectData.hostClerkId && (

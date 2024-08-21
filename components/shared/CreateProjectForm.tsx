@@ -20,9 +20,11 @@ import { useUser } from "@clerk/nextjs";
 import { createProject } from "@/lib/actions/project.actions";
 import { useToast } from "../ui/use-toast";
 import { useRouter } from "next/navigation";
+import { DialogClose } from "../ui/dialog";
+import { handleError } from "@/lib/utils";
 
 const formSchema = z.object({
-  projectName: z.string(),
+  projectName: z.string().min(3, "Project name must be atleast 3 characters"),
   projectDescription: z.string().optional(),
 });
 
@@ -90,7 +92,7 @@ export function CreateProjectForm() {
         router.refresh();
       }
     } catch (error) {
-      console.log(error);
+      handleError(error);
     }
   }
 
@@ -104,11 +106,9 @@ export function CreateProjectForm() {
             <FormItem>
               <FormLabel>Project Name</FormLabel>
               <FormControl>
-                <Input placeholder="Project Name" {...field} />
+                <Input required placeholder="Project Name" {...field} />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
+              <FormDescription>This is your project name.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
@@ -122,24 +122,14 @@ export function CreateProjectForm() {
               <FormControl>
                 <Input placeholder="Project Description" {...field} />
               </FormControl>
-              <FormDescription>
-                This is your public display name.
-              </FormDescription>
+              <FormDescription>This is project description.</FormDescription>
               <FormMessage />
             </FormItem>
           )}
         />
-        <Button
-          type="submit"
-          // onClick={() => {
-          //   toast({
-          //     title: "Scheduled: Catch up",
-          //     description: "Friday, February 10, 2023 at 5:57 PM",
-          //   });
-          // }}
-        >
-          Submit
-        </Button>
+        <DialogClose asChild>
+          <Button type="submit">Save</Button>
+        </DialogClose>
       </form>
     </Form>
   );

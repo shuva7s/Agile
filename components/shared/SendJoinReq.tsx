@@ -7,14 +7,16 @@ import { useRouter } from "next/navigation";
 
 type SendJoinReqProps = {
   projectId: string;
-  senderId: string;
+  senderClerkId: string;
+  senderMail: string;
   senderUsername: string;
   userImage: string;
 };
 
 export default function SendJoinReq({
   projectId,
-  senderId,
+  senderClerkId,
+  senderMail,
   senderUsername,
   userImage,
 }: SendJoinReqProps) {
@@ -25,9 +27,10 @@ export default function SendJoinReq({
     try {
       const responseMessage = await sendReq({
         projectId,
-        senderId,
+        senderClerkId,
+        senderMail,
         senderUsername,
-        userImage
+        userImage,
       });
       if (responseMessage === "Join request sent successfully") {
         toast({

@@ -44,7 +44,7 @@ export default async function JoinRequests({
                           <p className="text-xl font-semibold">
                             @{req.username}
                           </p>
-                          <p className="text-xs">~{req.userId}</p>
+                          <p className="text-sm">~{req.senderMail}</p>
                         </div>
                       </CardHeader>
                       <CardContent className="p-0 pt-4">

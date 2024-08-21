@@ -14,27 +14,24 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-
-import { useUser } from "@clerk/nextjs";
 import { getProjectById } from "@/lib/actions/project.actions";
 import { useToast } from "../ui/use-toast";
 import { useRouter } from "next/navigation";
 
 const formSchema = z.object({
-  searchingProjectId: z.string().min(5, "Project id must be at least 5 characters."),
+  searchingProjectId: z
+    .string().length(24, "project id must contain 16 characters"),
 });
 
 export function JoinProjectForm() {
   // 1. Define your form.
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
-    mode: "onChange", // Update this to enable validation on each change
     defaultValues: {
       searchingProjectId: "",
     },
   });
 
-  const { user } = useUser();
   const { toast } = useToast();
   const router = useRouter();
 
@@ -71,7 +68,10 @@ export function JoinProjectForm() {
             </FormItem>
           )}
         />
-        <Button className="w-full" type="submit" disabled={!form.formState.isValid}>
+        <Button
+          className="w-full"
+          type="submit"
+        >
           Search
         </Button>
       </form>

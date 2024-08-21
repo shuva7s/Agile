@@ -6,14 +6,8 @@ import { IPerson } from "@/lib/database/models/project.model";
 import NetwokConnetionSLow from "@/components/shared/NetwokConnetionSLow";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import CopyCode from "@/components/shared/CopyCode";
-import {
-  Accordion,
-  AccordionContent,
-  AccordionItem,
-  AccordionTrigger,
-} from "@/components/ui/accordion";
-import TaskCard from "@/components/shared/TaskCard";
+import { CopyLink } from "@/components/shared/CopyLink";
+import TaskContainer from "@/components/shared/TaskContainer";
 
 export default async function projectDynamic({
   params,
@@ -26,6 +20,7 @@ export default async function projectDynamic({
     const userId = user?.id || "";
     const userName = user?.username || "";
     const userImage = user?.imageUrl || "";
+    const userMail = user?.emailAddresses[0].emailAddress || "";
 
     if (!projectData) {
       return (
@@ -43,7 +38,7 @@ export default async function projectDynamic({
     const isUserHostOrMember =
       userId === projectData.hostClerkId ||
       projectData.people.some((person: IPerson) => person.userId === userId);
-
+    const isUserHost = userId === projectData.hostClerkId;
     return (
       <main className="min-h-[100vh]">
         <div className="wrapper flex flex-col gap-6">
@@ -62,7 +57,7 @@ export default async function projectDynamic({
                       Members
                     </Link>
                   </Button>
-                  {userId === projectData.hostClerkId && (
+                  {isUserHost && (
                     <>
                       <Button asChild variant="secondary" className="text-sm">
                         <Link
@@ -78,100 +73,51 @@ export default async function projectDynamic({
                       </Button>
                     </>
                   )}
-                </div>
-                <div className="flex flex-col gap-4">
-                  <CopyCode content={projectData._id} buttonType="code" />
-                  <CopyCode content={projectData._id} buttonType="link" />
+                  <CopyLink content={projectData._id} buttonType="link" />
                 </div>
               </section>
-              {userId === projectData.hostClerkId && (
-                <section>
-                  <Accordion type="single" collapsible>
-                    <AccordionItem value="item-1">
-                      <AccordionTrigger className="bg-secondary/30 px-4 hover:bg-secondary">
-                        <h3 className="text-xl font-medium">
-                          All Requirements
-                        </h3>
-                      </AccordionTrigger>
-                      <AccordionContent className="rounded-md">
-                        <div className="w-full grid gap-4 auto-grid-small items-start p-4">
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </section>
+
+              {isUserHost ? (
+                <>
+                  <section>
+                    <TaskContainer
+                      type="requirements"
+                      isHost={isUserHost}
+                      projectId={params.project_id}
+                    />
+                  </section>
+                  <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
+                    <TaskContainer
+                      type="all_todo"
+                      isHost={isUserHost}
+                      projectId={params.project_id}
+                    />
+                    <TaskContainer
+                      type="in_progress"
+                      isHost={isUserHost}
+                      projectId={params.project_id}
+                    />
+                    <TaskContainer
+                      type="done"
+                      isHost={isUserHost}
+                      projectId={params.project_id}
+                    />
+                  </section>
+                </>
+              ) : (
+                <>
+                  <TaskContainer
+                    type="my_tasks"
+                    isHost={isUserHost}
+                    projectId={params.project_id}
+                  />
+                  <TaskContainer
+                    type="all_todo"
+                    isHost={isUserHost}
+                    projectId={params.project_id}
+                  />
+                </>
               )}
-              <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                <div>
-                  <Accordion type="single" collapsible>
-                    <AccordionItem value="item-1">
-                      <AccordionTrigger className="bg-secondary/30 px-4 hover:bg-secondary">
-                        <h3 className="text-xl font-medium">TO DO</h3>
-                      </AccordionTrigger>
-                      <AccordionContent className="rounded-md">
-                        <div className="w-full grid gap-4 auto-grid-small items-start p-4">
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </div>
-                <div>
-                  <Accordion type="single" collapsible>
-                    <AccordionItem value="item-1">
-                      <AccordionTrigger className="bg-secondary/30 px-4 hover:bg-secondary">
-                        <h3 className="text-xl font-medium">In progress</h3>
-                      </AccordionTrigger>
-                      <AccordionContent className="rounded-md">
-                        <div className="w-full grid gap-4 auto-grid-small items-start p-4">
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </div>
-                <div>
-                  <Accordion type="single" collapsible>
-                    <AccordionItem value="item-1">
-                      <AccordionTrigger className="bg-secondary/30 px-4 hover:bg-secondary">
-                        <h3 className="text-xl font-medium">Done</h3>
-                      </AccordionTrigger>
-                      <AccordionContent className="rounded-md">
-                        <div className="w-full grid gap-4 auto-grid-small items-start p-4">
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                          <TaskCard></TaskCard>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </div>
-              </section>
             </>
           ) : (
             <section className="min-h-screen flex flex-col justify-center items-center">
@@ -187,7 +133,8 @@ export default async function projectDynamic({
                   <p>Join the project to get access to it.</p>
                   <SendJoinReq
                     projectId={params.project_id}
-                    senderId={userId}
+                    senderClerkId={userId}
+                    senderMail={userMail}
                     senderUsername={userName}
                     userImage={userImage}
                   />
