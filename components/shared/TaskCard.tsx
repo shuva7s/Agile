@@ -1,11 +1,9 @@
 import { ITask } from "@/lib/database/models/project.model";
 import { Card, CardContent, CardFooter, CardHeader } from "../ui/card";
 import MoveToTodoButton from "./MoveToTodoButton";
-import Link from "next/link";
-import { Button } from "../ui/button";
-import { UserRoundPlus } from "lucide-react";
 import MoveBackToRequirement from "./MoveBackToRequirement";
-import { CirclePlus } from "lucide-react";
+import AssignMemberToTask from "./AssignMemberToTask";
+import JoinTask from "./JoinTask";
 const TaskCard = ({
   task,
   projectId,
@@ -13,7 +11,7 @@ const TaskCard = ({
 }: {
   task: ITask;
   projectId: string;
-  taskCardType: "requirement" | "todoHost" | "todoNoHost";
+  taskCardType: "requirement" | "todoHost" | "todoNoHost" | "in_progress";
 }) => {
   return (
     <Card className="hover:bg-secondary/20 transition-all">
@@ -29,11 +27,10 @@ const TaskCard = ({
         )}
         {taskCardType === "todoHost" && (
           <div className="flex flex-row gap-4">
-            <Button asChild variant="outline" size="icon">
-              <Link className="onPrentHover" href={""}>
-                <UserRoundPlus className="opacity-50 transition-all" />
-              </Link>
-            </Button>
+            <AssignMemberToTask
+              taskId={task._id.toString()}
+              projectId={projectId}
+            />
             <MoveBackToRequirement
               taskId={task._id.toString()}
               projectId={projectId}
@@ -42,11 +39,21 @@ const TaskCard = ({
         )}
         {taskCardType === "todoNoHost" && (
           <div className="flex flex-row gap-4">
-            <Button variant="outline" size="icon" className="onPrentHover border-0">
-              <CirclePlus className="opacity-50 transition-all" />
-            </Button>
+            <JoinTask
+              projectId={projectId}
+              taskId={task._id.toString()}
+            />
           </div>
         )}
+        {/* {taskCardType === "in_progress" && (
+          <div className="flex flex-row gap-4">
+            <JoinTask
+              projectId={projectId}
+              taskId={task._id.toString()}
+              userId={userId as string}
+            />
+          </div>
+        )} */}
       </CardHeader>
     </Card>
   );

@@ -50,7 +50,7 @@ const MoveBackToRequirement = ({
         <TooltipTrigger asChild>
           <Button
             variant="outline"
-            className="rounded-full onPrentHover"
+            className="onPrentHover border-0"
             size="icon"
             onClick={handleClick}
             disabled={isProcessing} // Disable button during processing

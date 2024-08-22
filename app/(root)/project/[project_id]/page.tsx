@@ -84,6 +84,7 @@ export default async function projectDynamic({
                       type="requirements"
                       isHost={isUserHost}
                       projectId={params.project_id}
+                      userId={userId}
                     />
                   </section>
                   <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
@@ -91,16 +92,19 @@ export default async function projectDynamic({
                       type="all_todo"
                       isHost={isUserHost}
                       projectId={params.project_id}
+                      userId={userId}
                     />
                     <TaskContainer
                       type="in_progress"
                       isHost={isUserHost}
                       projectId={params.project_id}
+                      userId={userId}
                     />
                     <TaskContainer
                       type="done"
                       isHost={isUserHost}
                       projectId={params.project_id}
+                      userId={userId}
                     />
                   </section>
                 </>
@@ -110,11 +114,13 @@ export default async function projectDynamic({
                     type="my_tasks"
                     isHost={isUserHost}
                     projectId={params.project_id}
+                    userId={userId}
                   />
                   <TaskContainer
                     type="all_todo"
                     isHost={isUserHost}
                     projectId={params.project_id}
+                    userId={userId}
                   />
                 </>
               )}

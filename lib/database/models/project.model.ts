@@ -30,24 +30,6 @@ const LogSchema = new Schema<ILog>({
 });
 
 // Define the TypeScript interface for Task
-export interface ITask {
-  _id: Types.ObjectId; 
-  task: string;
-  assignedPeople: string[]; // Array of Clerk user IDs
-}
-// Define the Mongoose schema for Task
-const TaskSchema = new Schema<ITask>({
-  task: {
-    type: String,
-    required: true,
-  },
-  assignedPeople: [
-    {
-      type: String,
-      required: true,
-    },
-  ],
-});
 
 export interface IJoinRequest {
   _id: Types.ObjectId;
@@ -107,6 +89,25 @@ const PersonSchema = new Schema<IPerson>({
     type: String,
     required: true,
   },
+});
+
+export interface ITask {
+  _id: Types.ObjectId;
+  task: string;
+  assignedPeople: IPerson[]; // Array of Person objects instead of just strings
+}
+
+// Define the Mongoose schema for Task
+const TaskSchema = new Schema<ITask>({
+  task: {
+    type: String,
+    required: true,
+  },
+  assignedPeople: [
+    {
+      type: PersonSchema, // Use PersonSchema for assignedPeople
+    },
+  ],
 });
 
 // Define the TypeScript interface for Project

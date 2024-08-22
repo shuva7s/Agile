@@ -173,7 +173,7 @@ export async function deleteMemberAction({
     taskSections.forEach((section) => {
       project[section].forEach((task: ITask) => {
         task.assignedPeople = task.assignedPeople.filter(
-          (id) => id !== memberClerkId
+          (person: IPerson) => person.userId !== memberClerkId
         );
       });
     });
