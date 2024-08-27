@@ -101,7 +101,7 @@ export async function fetchProjects(
 
     return { projects, hasMoreProjects };
   } catch (error) {
-    handleError(error)
+    handleError(error);
     return { projects: [], hasMoreProjects: false };
   }
 }
@@ -386,6 +386,7 @@ export async function moveTaskBackToRequirements(
       if (taskIndex !== -1) {
         const task = project[section].splice(taskIndex, 1)[0];
         task.assignedPeople = []; // Remove all assigned members
+        task.isComplete = false;
 
         // Update taskLocation to 'requirements'
         task.taskLocation = "requirements";
