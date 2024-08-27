@@ -114,6 +114,7 @@ const TaskSchema = new Schema<ITask>({
 // Define the TypeScript interface for Project
 
 export interface IProject extends Document {
+  _id: Types.ObjectId;
   hostClerkId: string;
   projectName: string;
   projectDescription?: string;

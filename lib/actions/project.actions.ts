@@ -101,7 +101,7 @@ export async function fetchProjects(
 
     return { projects, hasMoreProjects };
   } catch (error) {
-    console.error("Error fetching projects:", error);
+    handleError(error)
     return { projects: [], hasMoreProjects: false };
   }
 }
