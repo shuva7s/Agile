@@ -2,7 +2,6 @@
 import { currentUser } from "@clerk/nextjs/server";
 import Project, {
   IJoinRequest,
-  ILog,
   IPerson,
   IProject,
   ITask,
@@ -142,6 +141,8 @@ export async function addRequirement(
     const newTask = {
       task: taskName,
       assignedPeople: [],
+      taskLocation: "requirements",
+      isComplete: false,
     };
 
     project.requirements.push(newTask);
@@ -154,12 +155,16 @@ export async function addRequirement(
   }
 }
 
-export async function moveTaskToTodo(
+export async function moveTaskToDesign(
   projectId: string,
   taskId: string
 ): Promise<string> {
   try {
     await connectToDatabase();
+
+    if (!Types.ObjectId.isValid(projectId) || !Types.ObjectId.isValid(taskId)) {
+      return "invalid_id";
+    }
 
     const project = await Project.findById(projectId);
     if (!project) {
@@ -169,24 +174,30 @@ export async function moveTaskToTodo(
     const taskIndex = project.requirements.findIndex(
       (task: ITask) => task._id.toString() === taskId
     );
+
     if (taskIndex === -1) {
       return "task_not_found";
     }
 
-    // Remove the task from requirements and add it to the todo list
+    // Remove the task from requirements
     const task = project.requirements.splice(taskIndex, 1)[0];
-    project.todo.push(task);
+
+    // Update taskLocation to 'todo'
+    task.taskLocation = "designing";
+
+    // Add the updated task to the todo list
+    project.designing.push(task);
 
     await project.save();
 
     return "success";
   } catch (error) {
-    console.error("Error moving task to TODO:", error);
+    handleError(error);
     return "error";
   }
 }
 
-export async function getAllTodos(projectId: string) {
+export async function getAllDesigningTasks(projectId: string) {
   try {
     await connectToDatabase();
 
@@ -196,11 +207,140 @@ export async function getAllTodos(projectId: string) {
 
     const project = await Project.findById(projectId);
 
-    if (!project || !project.todo) {
+    if (!project || !project.designing) {
       return [];
     }
 
-    return project.todo.reverse();
+    return project.designing.reverse();
+  } catch (error) {
+    handleError(error);
+    return [];
+  }
+}
+export async function getAllDevelopmentTasks(projectId: string) {
+  try {
+    await connectToDatabase();
+
+    if (!Types.ObjectId.isValid(projectId)) {
+      return [];
+    }
+
+    const project = await Project.findById(projectId);
+
+    if (!project || !project.development) {
+      return [];
+    }
+
+    return project.development.reverse();
+  } catch (error) {
+    handleError(error);
+    return [];
+  }
+}
+export async function getAllTestingTasks(projectId: string) {
+  try {
+    await connectToDatabase();
+
+    if (!Types.ObjectId.isValid(projectId)) {
+      return [];
+    }
+
+    const project = await Project.findById(projectId);
+
+    if (!project || !project.testing) {
+      return [];
+    }
+
+    return project.testing.reverse();
+  } catch (error) {
+    handleError(error);
+    return [];
+  }
+}
+export async function getAllDeploymentTasks(projectId: string) {
+  try {
+    await connectToDatabase();
+
+    if (!Types.ObjectId.isValid(projectId)) {
+      return [];
+    }
+
+    const project = await Project.findById(projectId);
+
+    if (!project || !project.deployment) {
+      return [];
+    }
+
+    return project.deployment.reverse();
+  } catch (error) {
+    handleError(error);
+    return [];
+  }
+}
+export async function getAllDoneTasks(projectId: string) {
+  try {
+    await connectToDatabase();
+
+    if (!Types.ObjectId.isValid(projectId)) {
+      return [];
+    }
+
+    const project = await Project.findById(projectId);
+
+    if (!project || !project.done) {
+      return [];
+    }
+
+    return project.done.reverse();
+  } catch (error) {
+    handleError(error);
+    return [];
+  }
+}
+export async function getUserJoinedTasks(projectId: string) {
+  try {
+    await connectToDatabase();
+
+    if (!Types.ObjectId.isValid(projectId)) {
+      return [];
+    }
+
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return [];
+    }
+
+    // Fetch the currently logged-in user's information
+    const { userId } = await userInfo();
+    if (!userId) {
+      return [];
+    }
+
+    // Define all sections from which the user may have joined tasks
+    const taskSections = [
+      "requirements",
+      "designing",
+      "pending_designing",
+      "development",
+      "pending_development",
+      "testing",
+      "pending_testing",
+      "deployment",
+      "pending_deployment",
+      "done",
+    ];
+
+    // Collect tasks where the current user is in the assignedPeople array
+    const userTasks: ITask[] = [];
+
+    for (const section of taskSections) {
+      const tasksInSection = project[section].filter((task: ITask) =>
+        task.assignedPeople.some((person) => person.userId === userId)
+      );
+      userTasks.push(...tasksInSection);
+    }
+
+    return userTasks.reverse();
   } catch (error) {
     handleError(error);
     return [];
@@ -214,32 +354,50 @@ export async function moveTaskBackToRequirements(
   try {
     await connectToDatabase();
 
+    if (!Types.ObjectId.isValid(projectId) || !Types.ObjectId.isValid(taskId)) {
+      return "invalid_id";
+    }
+
     const project = await Project.findById(projectId);
     if (!project) {
       return "project_not_found";
     }
 
-    // Find the task in TODO or InProgress
-    let taskIndex = project.todo.findIndex(
-      (task: ITask) => task._id.toString() === taskId
-    );
+    // All task sections where the task might be present
+    const taskSections = [
+      "designing",
+      "pending_designing",
+      "development",
+      "pending_development",
+      "testing",
+      "pending_testing",
+      "deployment",
+      "pending_deployment",
+    ];
 
-    if (taskIndex === -1) {
-      taskIndex = project.inProgress.findIndex(
+    let taskFound = false;
+
+    // Search for the task in each section
+    for (const section of taskSections) {
+      const taskIndex = project[section].findIndex(
         (task: ITask) => task._id.toString() === taskId
       );
 
       if (taskIndex !== -1) {
-        const task = project.inProgress.splice(taskIndex, 1)[0];
-        task.assignedPeople = []; // Remove all assigned people
+        const task = project[section].splice(taskIndex, 1)[0];
+        task.assignedPeople = []; // Remove all assigned members
+
+        // Update taskLocation to 'requirements'
+        task.taskLocation = "requirements";
+
         project.requirements.push(task);
-      } else {
-        return "task_not_found";
+        taskFound = true;
+        break; // Exit the loop once the task is found and moved
       }
-    } else {
-      const task = project.todo.splice(taskIndex, 1)[0];
-      task.assignedPeople = []; // Remove all assigned people
-      project.requirements.push(task);
+    }
+
+    if (!taskFound) {
+      return "task_not_found";
     }
 
     await project.save();
@@ -250,7 +408,43 @@ export async function moveTaskBackToRequirements(
   }
 }
 
-// Function to join a task and move it to InProgress
+export async function getTaskStatus(
+  projectId: string,
+  taskId: string
+): Promise<string> {
+  try {
+    await connectToDatabase(); // Ensure database connection
+
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return "project_not_found";
+    }
+
+    // Find the task in all project tasks
+    const allTasks = project.requirements.concat(
+      project.designing,
+      project.pending_designing,
+      project.development,
+      project.pending_development,
+      project.testing,
+      project.pending_testing,
+      project.deployment,
+      project.pending_deployment,
+      project.done
+    );
+
+    const task = allTasks.find((task: ITask) => task._id.toString() === taskId);
+
+    if (!task) {
+      return "task_not_found";
+    }
+
+    return task.taskLocation; // Directly return the task's location
+  } catch (error) {
+    console.error("Error getting task location:", error);
+    return "error";
+  }
+}
 export async function joinTaskFunc(
   projectId: string,
   taskId: string
@@ -258,37 +452,44 @@ export async function joinTaskFunc(
   try {
     await connectToDatabase(); // Ensure you're connected to the database
 
+    // Validate IDs
     if (!Types.ObjectId.isValid(projectId) || !Types.ObjectId.isValid(taskId)) {
       return "invalid_ids";
     }
 
     const project = await Project.findById(projectId);
-
     if (!project) {
       return "project_not_found";
     }
 
     // Fetch the currently logged-in user's information
     const { userId, userName, userMail, userImage } = await userInfo();
-
     if (!userId) {
       return "user_not_found";
     }
 
-    // Find the task in TODO or InProgress
-    let task =
-      project.todo.find((task: ITask) => task._id.toString() === taskId) ||
-      project.inProgress.find((task: ITask) => task._id.toString() === taskId);
+    // Flatten all tasks into a single array for easier search
+    const allTasks = [
+      ...project.requirements,
+      ...project.designing,
+      ...project.pending_designing,
+      ...project.development,
+      ...project.pending_development,
+      ...project.testing,
+      ...project.pending_testing,
+      ...project.deployment,
+      ...project.pending_deployment,
+      ...project.done,
+    ];
 
+    // Find the task using the taskId
+    const task = allTasks.find((task: ITask) => task._id.toString() === taskId);
     if (!task) {
       return "task_not_found";
     }
-
-    // Initialize the assignedPeople array if it's undefined
-    if (!task.assignedPeople) {
-      task.assignedPeople = [];
+    if (task.isComplete) {
+      return "already_complete";
     }
-
     // Check if the user has already joined the task
     const alreadyJoined = task.assignedPeople.some(
       (person: IPerson) => person.userId === userId
@@ -297,25 +498,16 @@ export async function joinTaskFunc(
       return "already_joined";
     }
 
-    // Add user to the task's assigned people using the PersonSchema
+    // Add the user to the task's assignedPeople array
     task.assignedPeople.push({
-      _id: new Types.ObjectId(), // Generates a new ObjectId for this person
+      _id: new Types.ObjectId(), // Generate a new ObjectId for this person
       userId,
       username: userName,
       userEmail: userMail,
       userImage,
     });
 
-    // If the task is in TODO, move it to InProgress
-    if (project.todo.some((task: ITask) => task._id.toString() === taskId)) {
-      project.todo = project.todo.filter(
-        (task: ITask) => task._id.toString() !== taskId
-      );
-      project.inProgress.push(task);
-    }
-
     await project.save();
-
     return "success";
   } catch (error) {
     handleError(error);
@@ -323,23 +515,231 @@ export async function joinTaskFunc(
   }
 }
 
-export async function getInProgressTasks(projectId: string) {
+// DELETE Requirement
+export async function deleteRequirement(
+  projectId: string,
+  taskId: string
+): Promise<string> {
   try {
     await connectToDatabase();
 
-    if (!Types.ObjectId.isValid(projectId)) {
-      return [];
+    if (!Types.ObjectId.isValid(projectId) || !Types.ObjectId.isValid(taskId)) {
+      return "invalid_ids";
     }
 
     const project = await Project.findById(projectId);
+    if (!project) {
+      return "project_not_found";
+    }
 
-    if (!project || !project.inProgress) {
+    // Use $pull to remove the task directly from the database
+    const result = await Project.updateOne(
+      { _id: projectId },
+      { $pull: { requirements: { _id: taskId } } }
+    );
+
+    if (result.modifiedCount === 0) {
+      return "task_not_found";
+    }
+
+    return "success";
+  } catch (error) {
+    handleError(error);
+    return "error";
+  }
+}
+export async function getTaskData(
+  projectId: string,
+  taskId: string
+): Promise<ITask | string> {
+  try {
+    await connectToDatabase(); // Ensure the database is connected
+
+    // Validate IDs
+    if (!Types.ObjectId.isValid(projectId) || !Types.ObjectId.isValid(taskId)) {
+      return "invalid_ids";
+    }
+
+    // Fetch the project by ID
+    const project = await Project.findById(projectId);
+    if (!project) {
+      return "project_not_found";
+    }
+
+    // Aggregate all tasks from various arrays into one
+    const allTasks = project.requirements.concat(
+      project.designing,
+      project.pending_designing,
+      project.development,
+      project.pending_development,
+      project.testing,
+      project.pending_testing,
+      project.deployment,
+      project.pending_deployment,
+      project.done
+    );
+
+    // Find the task by taskId
+    const task = allTasks.find((task: ITask) => task._id.toString() === taskId);
+
+    if (!task) {
+      return "task_not_found";
+    }
+
+    return task; // Return the task if found
+  } catch (error) {
+    handleError(error);
+    return "error";
+  }
+}
+
+export async function getUnassignedMembers(
+  projectId: string,
+  taskId: string
+): Promise<IPerson[]> {
+  try {
+    // Fetch the project by ID
+    const project = await Project.findById(projectId).exec();
+
+    if (!project) {
       return [];
     }
 
-    return project.inProgress.reverse();
+    // Initialize a variable for the specific task
+    let task = null;
+
+    // Search for the task in all task arrays of the project
+    const allTasks = [
+      ...project.requirements,
+      ...project.designing,
+      ...project.pending_designing,
+      ...project.development,
+      ...project.pending_development,
+      ...project.testing,
+      ...project.pending_testing,
+      ...project.deployment,
+      ...project.pending_deployment,
+      ...project.done,
+    ];
+
+    task = allTasks.find((t) => t._id.toString() === taskId);
+
+    if (!task) {
+      return [];
+    }
+
+    // Extract all people and assigned people
+    const allPeople = project.people;
+    const assignedPeople = task.assignedPeople;
+
+    // Find members who are not assigned to the task
+    const unassignedMembers = allPeople.filter(
+      (person: IPerson) =>
+        !assignedPeople.some(
+          (assigned: IPerson) => assigned.userId === person.userId
+        )
+    );
+
+    return unassignedMembers;
   } catch (error) {
     handleError(error);
     return [];
+  }
+}
+
+export async function processProjectTasks(projectId: string) {
+  try {
+    const project = await Project.findById(projectId);
+
+    if (!project) {
+      throw new Error("Project not found");
+    }
+
+    const taskArrays: (keyof IProject)[] = [
+      "requirements",
+      "designing",
+      "development",
+      "testing",
+      "deployment",
+    ];
+
+    taskArrays.forEach((stage, index) => {
+      if (index === taskArrays.length - 1) return; // Skip the last stage 'deployment'
+
+      const nextStage = taskArrays[index + 1];
+      const pendingStage = `pending_${stage}` as keyof IProject;
+
+      const tasks = project[stage] as ITask[];
+      if (
+        !tasks ||
+        !Array.isArray(project[nextStage]) ||
+        !Array.isArray(project[pendingStage])
+      )
+        return;
+
+      tasks.forEach((task) => {
+        const taskCopy: ITask = { ...task }; // Create a copy of the task
+        if (taskCopy.isComplete) {
+          // Task is complete, move to the next stage and remove assigned members
+          project[nextStage].push({
+            ...taskCopy,
+            assignedPeople: [], // Clear assigned people
+            taskLocation: nextStage,
+          });
+        } else {
+          // Task is not complete, move to the pending stage, keep assigned members
+          project[pendingStage].push({
+            ...taskCopy,
+            taskLocation: pendingStage,
+          });
+        }
+      });
+
+      // Clear out tasks in the current stage after processing
+      project[stage] = [];
+    });
+
+    // Save the updated project document
+    await project.save();
+  } catch (error) {
+    handleError(error);
+  }
+}
+
+export async function toggleTaskCompletion(projectId: string, taskId: string) {
+  // const { userId } = await userInfo();
+  try {
+    const project = await Project.findById(projectId).exec();
+    if (!project) {
+      return "npf";
+    }
+    let task = null;
+
+    // Search for the task in all task arrays of the project
+    const allTasks = [
+      ...project.requirements,
+      ...project.designing,
+      ...project.pending_designing,
+      ...project.development,
+      ...project.pending_development,
+      ...project.testing,
+      ...project.pending_testing,
+      ...project.deployment,
+      ...project.pending_deployment,
+      ...project.done,
+    ];
+
+    task = allTasks.find((t) => t._id.toString() === taskId);
+
+    if (!task) {
+      return "ntf";
+    }
+
+    task.isComplete = !task.isComplete;
+    await project.save();
+    return "success";
+  } catch (error) {
+    handleError(error);
+    return "swr";
   }
 }

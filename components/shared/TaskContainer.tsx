@@ -7,9 +7,13 @@ import {
 import AddRequirement from "@/components/shared/AddRequirement";
 import TaskCard from "./TaskCard";
 import {
-  getAllTodos,
-  getInProgressTasks,
+  getAllDeploymentTasks,
+  getAllDesigningTasks,
+  getAllDevelopmentTasks,
+  getAllDoneTasks,
+  getAllTestingTasks,
   getProjectRequirements,
+  getUserJoinedTasks,
 } from "@/lib/actions/project.actions";
 import { ITask } from "@/lib/database/models/project.model";
 import { handleError } from "@/lib/utils";
@@ -18,12 +22,17 @@ const TaskContainer = async ({
   type,
   isHost,
   projectId,
-  userId,
 }: {
-  type: "requirements" | "all_todo" | "in_progress" | "done" | "my_tasks";
+  type:
+    | "requirements"
+    | "designing"
+    | "development"
+    | "testing"
+    | "deployment"
+    | "done"
+    | "your_tasks";
   isHost: boolean;
   projectId: string;
-  userId: string;
 }) => {
   if (type === "requirements" && isHost) {
     try {
@@ -32,9 +41,12 @@ const TaskContainer = async ({
         <Accordion type="single" collapsible>
           <AccordionItem value="item-1">
             <AccordionTrigger className="bg-secondary/30 px-4 hover:bg-secondary">
-              <h3 className="text-xl font-medium">All Requirements</h3>
+              <h3 className="text-xl font-medium">
+                <span>0</span>
+                &nbsp; All Requirements
+              </h3>
             </AccordionTrigger>
-            <AccordionContent className="px-2 py-4 rounded-md grid gap-4 auto-grid-small">
+            <AccordionContent className="p-3 border-x grid gap-3 auto-grid-small">
               <AddRequirement projectId={projectId} />
               {requirements.map((task: ITask) => (
                 <TaskCard
@@ -51,29 +63,28 @@ const TaskContainer = async ({
     } catch (error) {
       handleError(error);
     }
-  } else if (type === "all_todo") {
+  } else if (type === "designing") {
     try {
-      const todoCards = await getAllTodos(projectId);
+      const designingCards = await getAllDesigningTasks(projectId);
       return (
         <Accordion type="single" collapsible>
           <AccordionItem value="item-1">
-            <AccordionTrigger className="bg-secondary/30 px-4 hover:bg-secondary">
-              <h3 className="text-xl font-medium">All TODO</h3>
+            <AccordionTrigger className="bg-secondary/30 px-4 hover:bg-secondary md:border-r">
+              <h3 className="text-xl font-medium">
+                <span>1</span>
+                &nbsp; Designing
+              </h3>
             </AccordionTrigger>
-            <AccordionContent
-              className={` ${
-                isHost
-                  ? "flex flex-col gap-2 p-2 py-4"
-                  : "grid auto-grid-small gap-4 px-2 py-4"
-              }`}
-            >
-              {todoCards && todoCards.length > 0 ? (
-                todoCards.map((task: ITask) => (
+            <AccordionContent className="p-3 border-x grid gap-3 auto-grid-small">
+              {designingCards && designingCards.length > 0 ? (
+                designingCards.map((task: ITask) => (
                   <TaskCard
                     key={task._id.toString()}
                     task={task}
                     projectId={projectId}
-                    taskCardType={isHost ? "todoHost" : "todoNoHost"}
+                    taskCardType={
+                      isHost ? "desighning_host" : "desighning_nohost"
+                    }
                   />
                 ))
               ) : (
@@ -86,23 +97,28 @@ const TaskContainer = async ({
     } catch (error) {
       handleError(error);
     }
-  } else if (type === "in_progress" && isHost) {
+  } else if (type === "development") {
     try {
-      const inProgressCards = await getInProgressTasks(projectId);
+      const developmentCards = await getAllDevelopmentTasks(projectId);
       return (
         <Accordion type="single" collapsible>
           <AccordionItem value="item-1">
-            <AccordionTrigger className="bg-secondary/30 px-4 hover:bg-secondary">
-              <h3 className="text-xl font-medium">In progress</h3>
+            <AccordionTrigger className="bg-secondary/30 px-4 hover:bg-secondary md:border-l">
+              <h3 className="text-xl font-medium">
+                <span>2</span>
+                &nbsp; Development
+              </h3>
             </AccordionTrigger>
-            <AccordionContent className="flex flex-col gap-2 p-2 py-4">
-              {inProgressCards && inProgressCards.length > 0 ? (
-                inProgressCards.map((task: ITask) => (
+            <AccordionContent className="p-3 border-x grid gap-3 auto-grid-small">
+              {developmentCards && developmentCards.length > 0 ? (
+                developmentCards.map((task: ITask) => (
                   <TaskCard
                     key={task._id.toString()}
                     task={task}
                     projectId={projectId}
-                    taskCardType="in_progress"
+                    taskCardType={
+                      isHost ? "development_host" : "development_nohost"
+                    }
                   />
                 ))
               ) : (
@@ -115,15 +131,126 @@ const TaskContainer = async ({
     } catch (error) {
       handleError(error);
     }
-  } else if (type === "done" && isHost) {
-    return <div></div>;
-  } else if (type === "my_tasks" && !isHost) {
-    return (
-      <section>
-        <h3 className="text-2xl font-bold">Your tasks</h3>
-        <div className="grid auto-grid-small gap-4">No tasks to show</div>
-      </section>
-    );
+  } else if (type === "testing") {
+    try {
+      const testingCards = await getAllTestingTasks(projectId);
+      return (
+        <Accordion type="single" collapsible>
+          <AccordionItem value="item-1">
+            <AccordionTrigger className="bg-secondary/30 px-4 hover:bg-secondary md:border-r">
+              <h3 className="text-xl font-medium">
+                <span>3</span>
+                &nbsp; Testing
+              </h3>
+            </AccordionTrigger>
+            <AccordionContent className="p-3 border-x grid gap-3 auto-grid-small">
+              {testingCards && testingCards.length > 0 ? (
+                testingCards.map((task: ITask) => (
+                  <TaskCard
+                    key={task._id.toString()}
+                    task={task}
+                    projectId={projectId}
+                    taskCardType={isHost ? "testing_host" : "testing_nohost"}
+                  />
+                ))
+              ) : (
+                <p>No tasks to show</p>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      );
+    } catch (error) {
+      handleError(error);
+    }
+  } else if (type === "deployment") {
+    try {
+      const deploymentCards = await getAllDeploymentTasks(projectId);
+      return (
+        <Accordion type="single" collapsible>
+          <AccordionItem value="item-1">
+            <AccordionTrigger className="bg-secondary/30 px-4 hover:bg-secondary md:border-l">
+              <h3 className="text-xl font-medium">
+                <span>4</span>
+                &nbsp; Deployment
+              </h3>
+            </AccordionTrigger>
+            <AccordionContent className="p-3 border-x grid gap-3 auto-grid-small">
+              {deploymentCards && deploymentCards.length > 0 ? (
+                deploymentCards.map((task: ITask) => (
+                  <TaskCard
+                    key={task._id.toString()}
+                    task={task}
+                    projectId={projectId}
+                    taskCardType={
+                      isHost ? "deployment_host" : "deployment_nohost"
+                    }
+                  />
+                ))
+              ) : (
+                <p>No tasks to show</p>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      );
+    } catch (error) {
+      handleError(error);
+    }
+  } else if (type === "done") {
+    try {
+      const doneCards = await getAllDoneTasks(projectId);
+      return (
+        <Accordion type="single" collapsible>
+          <AccordionItem value="item-1">
+            <AccordionTrigger className="bg-secondary/30 px-4 hover:bg-secondary">
+              <h3 className="text-xl font-medium">
+                <span>5</span>
+                &nbsp; Done
+              </h3>
+            </AccordionTrigger>
+            <AccordionContent className="p-3 border-x grid gap-3 auto-grid-small">
+              {doneCards && doneCards.length > 0 ? (
+                doneCards.map((task: ITask) => (
+                  <TaskCard
+                    key={task._id.toString()}
+                    task={task}
+                    projectId={projectId}
+                    taskCardType={isHost ? "done_host" : "done_nohost"}
+                  />
+                ))
+              ) : (
+                <p>No tasks to show</p>
+              )}
+            </AccordionContent>
+          </AccordionItem>
+        </Accordion>
+      );
+    } catch (error) {
+      handleError(error);
+    }
+  } else if (type === "your_tasks") {
+    try {
+      const yourTasks = await getUserJoinedTasks(projectId);
+      return (
+        <div className="p-3 border-x grid gap-3 auto-grid-small">
+          {yourTasks && yourTasks.length > 0 ? (
+            yourTasks.map((task: ITask) => (
+              <TaskCard
+                key={task._id.toString()}
+                task={task}
+                projectId={projectId}
+                taskCardType="your_tasks"
+              />
+            ))
+          ) : (
+            <p>No tasks to show</p>
+          )}
+        </div>
+      );
+    } catch (error) {
+      handleError(error);
+    }
   }
 };
 

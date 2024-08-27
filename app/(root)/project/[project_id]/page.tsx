@@ -45,9 +45,9 @@ export default async function projectDynamic({
           {isUserHostOrMember ? (
             <>
               <section className="flex flex-col gap-4">
-                <h2 className="text-2xl font-semibold mt-4">
+                <h1 className="text-3xl font-semibold mt-6 uppercase">
                   {projectData.projectName}
-                </h2>
+                </h1>
                 {projectData.projectDescription && (
                   <p className="text-lg">{projectData.projectDescription}</p>
                 )}
@@ -77,53 +77,56 @@ export default async function projectDynamic({
                 </div>
               </section>
 
-              {isUserHost ? (
-                <>
-                  <section>
-                    <TaskContainer
-                      type="requirements"
-                      isHost={isUserHost}
-                      projectId={params.project_id}
-                      userId={userId}
-                    />
-                  </section>
-                  <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
-                    <TaskContainer
-                      type="all_todo"
-                      isHost={isUserHost}
-                      projectId={params.project_id}
-                      userId={userId}
-                    />
-                    <TaskContainer
-                      type="in_progress"
-                      isHost={isUserHost}
-                      projectId={params.project_id}
-                      userId={userId}
-                    />
-                    <TaskContainer
-                      type="done"
-                      isHost={isUserHost}
-                      projectId={params.project_id}
-                      userId={userId}
-                    />
-                  </section>
-                </>
-              ) : (
-                <>
+              <>
+                <section>
+                  <h2 className="text-2xl mb-2 font-semibold">
+                    Your tasks
+                  </h2>
                   <TaskContainer
-                    type="my_tasks"
+                    type="your_tasks"
                     isHost={isUserHost}
                     projectId={params.project_id}
-                    userId={userId}
                   />
+                </section>
+                <section>
                   <TaskContainer
-                    type="all_todo"
+                    type="requirements"
                     isHost={isUserHost}
                     projectId={params.project_id}
-                    userId={userId}
                   />
-                </>
-              )}
+                </section>
+                <section className="grid grid-cols-1 md:grid-cols-2">
+                  <TaskContainer
+                    type="designing"
+                    isHost={isUserHost}
+                    projectId={params.project_id}
+                  />
+                  <TaskContainer
+                    type="development"
+                    isHost={isUserHost}
+                    projectId={params.project_id}
+                  />
+                </section>
+                <section className="grid grid-cols-1 md:grid-cols-2">
+                  <TaskContainer
+                    type="testing"
+                    isHost={isUserHost}
+                    projectId={params.project_id}
+                  />
+                  <TaskContainer
+                    type="deployment"
+                    isHost={isUserHost}
+                    projectId={params.project_id}
+                  />
+                </section>
+                <section>
+                  <TaskContainer
+                    type="done"
+                    isHost={isUserHost}
+                    projectId={params.project_id}
+                  />
+                </section>
+              </>
             </>
           ) : (
             <section className="min-h-screen flex flex-col justify-center items-center">

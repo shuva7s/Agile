@@ -1,36 +1,6 @@
 import { Schema, model, Document, models, Types } from "mongoose";
 
-// Define the Mongoose schema for Log
-export interface ILog {
-  prefix: string;
-  body: string;
-  suffix: string;
-  logCreationTime: Date;
-}
-
-// Define the Mongoose schema for Log
-const LogSchema = new Schema<ILog>({
-  prefix: {
-    type: String,
-    required: true,
-  },
-  body: {
-    type: String,
-    required: true,
-  },
-  suffix: {
-    type: String,
-    required: true,
-  },
-  logCreationTime: {
-    type: Date,
-    default: Date.now, // Automatically sets the creation time
-    required: true,
-  },
-});
-
 // Define the TypeScript interface for Task
-
 export interface IJoinRequest {
   _id: Types.ObjectId;
   senderClerkId: string;
@@ -94,10 +64,21 @@ const PersonSchema = new Schema<IPerson>({
 export interface ITask {
   _id: Types.ObjectId;
   task: string;
-  assignedPeople: IPerson[]; // Array of Person objects instead of just strings
+  assignedPeople: IPerson[];
+  taskLocation:
+    | "requirements"
+    | "designing"
+    | "pending_designing"
+    | "development"
+    | "pending_development"
+    | "testing"
+    | "pending_testing"
+    | "deployment"
+    | "pending_deployment"
+    | "done";
+  isComplete: boolean;
 }
 
-// Define the Mongoose schema for Task
 const TaskSchema = new Schema<ITask>({
   task: {
     type: String,
@@ -105,32 +86,57 @@ const TaskSchema = new Schema<ITask>({
   },
   assignedPeople: [
     {
-      type: PersonSchema, // Use PersonSchema for assignedPeople
+      type: PersonSchema,
     },
   ],
+  taskLocation: {
+    type: String,
+    enum: [
+      "requirements",
+      "designing",
+      "pending_designing",
+      "development",
+      "pending_development",
+      "testing",
+      "pending_testing",
+      "deployment",
+      "pending_deployment",
+      "done",
+    ],
+    required: true,
+  },
+  isComplete: {
+    type: Boolean,
+    default: false,
+  },
 });
 
 // Define the TypeScript interface for Project
+
 export interface IProject extends Document {
-  _id: Types.ObjectId; // Mongoose ObjectId type
   hostClerkId: string;
   projectName: string;
   projectDescription?: string;
-  people: IPerson[]; // Array of objects storing both userId and username
-  logs: ILog[]; // Array of logs
-  todo: ITask[]; // Array of tasks for todo
-  inProgress: ITask[]; // Array of tasks for in-progress
-  testing: ITask[]; // Array of tasks for testing
-  done: ITask[]; // Array of tasks for done
-  joinRequests: IJoinRequest[]; // Array of join request objects
-  timeSlice: number; // New field for time slices
-  hasStarted: boolean; // New field to track if the project has started
-  requirements: ITask[]; // Array of tasks as requirements
-  createdAt?: Date;
-  updatedAt?: Date;
+  people: IPerson[]; // Array of Person objects
+
+  designing: ITask[]; // New field: Array of Task objects for designing
+  pending_designing: ITask[]; // New field: Array of Task objects for pending designing
+  development: ITask[]; // New field: Array of Task objects for development
+  pending_development: ITask[]; // New field: Array of Task objects for pending development
+  testing: ITask[]; // New field: Array of Task objects for testing
+  pending_testing: ITask[]; // New field: Array of Task objects for pending testing
+  deployment: ITask[]; // New field: Array of Task objects for deployment
+  pending_deployment: ITask[]; // New field: Array of Task objects for pending deployment
+  done: ITask[]; // Array of Task objects for done
+
+  joinRequests: IJoinRequest[]; // Array of JoinRequest objects
+  timeSlice: number; // Field for time slice
+  hasStarted: boolean; // Field to check if the project has started
+  requirements: ITask[]; // Array of Task objects for requirements
+  createdAt: Date; // Field for project creation date
+  updatedAt: Date; // Field for project last updated date
 }
 
-// Define the Mongoose schema for Project
 const ProjectSchema = new Schema<IProject>({
   hostClerkId: {
     type: String,
@@ -144,10 +150,14 @@ const ProjectSchema = new Schema<IProject>({
     type: String,
   },
   people: [PersonSchema], // Array of Person objects
-  logs: [LogSchema], // Array of Log objects
-  todo: [TaskSchema], // Array of Task objects for todo
-  inProgress: [TaskSchema], // Array of Task objects for in-progress
+  designing: [TaskSchema], // Array of Task objects for designing
+  pending_designing: [TaskSchema], // Array of Task objects for pending designing
+  development: [TaskSchema], // Array of Task objects for development
+  pending_development: [TaskSchema], // Array of Task objects for pending development
   testing: [TaskSchema], // Array of Task objects for testing
+  pending_testing: [TaskSchema], // Array of Task objects for pending testing
+  deployment: [TaskSchema], // Array of Task objects for deployment
+  pending_deployment: [TaskSchema], // Array of Task objects for pending deployment
   done: [TaskSchema], // Array of Task objects for done
   joinRequests: [JoinRequestSchema], // Array of JoinRequest objects
   timeSlice: {
@@ -168,7 +178,6 @@ const ProjectSchema = new Schema<IProject>({
     default: Date.now,
   },
 });
-
 // Create and export the Project model
 const Project = models?.Project || model<IProject>("Project", ProjectSchema);
 

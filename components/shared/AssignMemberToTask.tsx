@@ -5,7 +5,7 @@ import {
   TooltipTrigger,
 } from "../ui/tooltip";
 import { Button } from "../ui/button";
-import { UserRoundPlus } from "lucide-react";
+import { CirclePlus } from "lucide-react";
 import Link from "next/link";
 
 const AssignMemberToTask = ({
@@ -24,8 +24,8 @@ const AssignMemberToTask = ({
             className="onPrentHover border-0"
             size="icon"
           >
-            <Link href={`/project/${projectId}/task/${taskId}`}>
-              <UserRoundPlus className="opacity-50 transition-all" />
+            <Link href={`/project/${projectId}/task/${taskId}/assign`}>
+              <CirclePlus className="opacity-50 transition-all" />
             </Link>
           </Button>
         </TooltipTrigger>

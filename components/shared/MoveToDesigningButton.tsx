@@ -9,12 +9,12 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "../ui/tooltip";
-import { moveTaskToTodo } from "@/lib/actions/project.actions";
+import { moveTaskToDesign } from "@/lib/actions/project.actions";
 import { useToast } from "../ui/use-toast";
 import { useRouter } from "next/navigation";
 import { handleError } from "@/lib/utils";
 
-const MoveToTodoButton = ({
+const MoveToDesigningButton = ({
   taskId,
   projectId,
 }: {
@@ -27,11 +27,11 @@ const MoveToTodoButton = ({
   const handleClick = async () => {
     setIsProcessing(true); // Disable the button
     try {
-      const response = await moveTaskToTodo(projectId, taskId);
+      const response = await moveTaskToDesign(projectId, taskId);
       if (response === "success") {
         router.refresh();
         toast({
-          title: "Task moved to TODO",
+          title: "Task moved to Designing",
         });
       } else {
         toast({
@@ -61,11 +61,11 @@ const MoveToTodoButton = ({
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Push to TODO</p>
+          <p>Push to Designing</p>
         </TooltipContent>
       </Tooltip>
     </TooltipProvider>
   );
 };
 
-export default MoveToTodoButton;
+export default MoveToDesigningButton;

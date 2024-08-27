@@ -51,7 +51,6 @@ export function CreateProjectForm() {
         projectDescription: values.projectDescription || "",
         people: [], // Array of objects with userId and username
         logs: [], // Array of log objects
-        todo: [], // Array of task objects for todo
         inProgress: [], // Array of task objects for in-progress
         testing: [], // Array of task objects for testing
         done: [], // Array of task objects for done
@@ -62,7 +61,6 @@ export function CreateProjectForm() {
 
       // Call the createProject function
       const newProject = await createProject(projectData);
-      console.dir(newProject);
 
       if (newProject) {
         form.reset();

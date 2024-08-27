@@ -25,7 +25,6 @@ declare type CreateProjectParams = {
   projectDescription: string;
   people: IPerson[]; // Updated to include userId and username
   logs: ILog[]; // Array of logs
-  todo: ITask[]; // Array of tasks for todo
   inProgress: ITask[]; // Array of tasks for in-progress
   testing: ITask[]; // Array of tasks for testing
   done: ITask[]; // Array of tasks for done

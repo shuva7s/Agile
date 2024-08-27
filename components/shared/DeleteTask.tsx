@@ -1,11 +1,5 @@
 "use client";
-
-import { useRouter } from "next/navigation";
-import { useToast } from "../ui/use-toast";
 import { Button } from "../ui/button";
-import { handleError } from "@/lib/utils";
-import { moveTaskBackToRequirements } from "@/lib/actions/project.actions";
-import { ArrowLeft } from "lucide-react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -17,7 +11,13 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-const MoveBackToRequirement = ({
+import { useToast } from "../ui/use-toast";
+import { useRouter } from "next/navigation";
+import { handleError } from "@/lib/utils";
+import { Trash } from "lucide-react";
+import { deleteRequirement } from "@/lib/actions/project.actions";
+
+const DeleteTask = ({
   taskId,
   projectId,
 }: {
@@ -28,15 +28,15 @@ const MoveBackToRequirement = ({
   const router = useRouter();
   const handleClick = async () => {
     try {
-      const response = await moveTaskBackToRequirements(projectId, taskId);
+      const response = await deleteRequirement(projectId, taskId);
       if (response === "success") {
         router.refresh();
         toast({
-          title: "Task moved back to Requirements",
+          title: "Requirement deleted",
         });
       } else {
         toast({
-          title: "Failed to move task",
+          title: "Failed to delete requirement",
           variant: "destructive",
         });
       }
@@ -47,16 +47,20 @@ const MoveBackToRequirement = ({
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" className="onPrentHover border-0" size="icon">
-          <ArrowLeft className="opacity-50 transition-all" />
+        <Button
+          variant="outline"
+          className="self-end rounded-full onPrentHover"
+          size="icon"
+        >
+          <Trash className="opacity-50 transition-all w-5" />
         </Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action will remove all the members in this task and move the
-            task back to requirements.
+            This action cannot be undone. This will permanently delete your
+            account and remove your data from our servers.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -68,4 +72,4 @@ const MoveBackToRequirement = ({
   );
 };
 
-export default MoveBackToRequirement;
+export default DeleteTask;
