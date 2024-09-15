@@ -12,7 +12,6 @@ import { handleError } from "../utils";
 import { Types } from "mongoose";
 import { userInfo } from "./userInfo.action";
 
-// CREATE
 export async function createProject(projectData: CreateProjectParams) {
   try {
     await connectToDatabase();
@@ -33,7 +32,6 @@ export async function createProject(projectData: CreateProjectParams) {
   }
 }
 
-// Search by id
 export async function getProjectById(projectId: string) {
   try {
     await connectToDatabase();
@@ -217,6 +215,7 @@ export async function getAllDesigningTasks(projectId: string) {
     return [];
   }
 }
+
 export async function getAllDevelopmentTasks(projectId: string) {
   try {
     await connectToDatabase();
@@ -237,6 +236,7 @@ export async function getAllDevelopmentTasks(projectId: string) {
     return [];
   }
 }
+
 export async function getAllTestingTasks(projectId: string) {
   try {
     await connectToDatabase();
@@ -257,6 +257,7 @@ export async function getAllTestingTasks(projectId: string) {
     return [];
   }
 }
+
 export async function getAllDeploymentTasks(projectId: string) {
   try {
     await connectToDatabase();
@@ -277,6 +278,7 @@ export async function getAllDeploymentTasks(projectId: string) {
     return [];
   }
 }
+
 export async function getAllDoneTasks(projectId: string) {
   try {
     await connectToDatabase();
@@ -297,6 +299,7 @@ export async function getAllDoneTasks(projectId: string) {
     return [];
   }
 }
+
 export async function getUserJoinedTasks(projectId: string) {
   try {
     await connectToDatabase();
@@ -446,6 +449,7 @@ export async function getTaskStatus(
     return "error";
   }
 }
+
 export async function joinTaskFunc(
   projectId: string,
   taskId: string
@@ -516,7 +520,6 @@ export async function joinTaskFunc(
   }
 }
 
-// DELETE Requirement
 export async function deleteRequirement(
   projectId: string,
   taskId: string
@@ -648,6 +651,53 @@ export async function getUnassignedMembers(
   }
 }
 
+export async function toggleTaskCompletion(projectId: string, taskId: string) {
+  try {
+    // Fetch the project from the database
+    const project = await Project.findById(projectId).exec();
+    if (!project) {
+      return "Project not found"; // More descriptive error message
+    }
+
+    let taskUpdated = false; // Flag to track if a task is updated
+
+    // Search for the task in all task arrays of the project
+    const taskArrays = [
+      "requirements",
+      "designing",
+      "pending_designing",
+      "development",
+      "pending_development",
+      "testing",
+      "pending_testing",
+      "deployment",
+      "pending_deployment",
+      "done",
+    ] as const;
+
+    for (const arrayName of taskArrays) {
+      const taskArray = project[arrayName];
+      const task = taskArray.find((t: ITask) => t._id.toString() === taskId);
+
+      if (task) {
+        task.isComplete = !task.isComplete; // Toggle task completion status
+        taskUpdated = true;
+        break; // Exit the loop once the task is found and updated
+      }
+    }
+
+    if (!taskUpdated) {
+      return "Task not found";
+    }
+
+    await project.save(); // Save only if a task was updated
+    return "success";
+  } catch (error) {
+    handleError(error);
+    return "Server error"; // More descriptive error message
+  }
+}
+
 export async function processProjectTasks(projectId: string) {
   try {
     const project = await Project.findById(projectId);
@@ -656,90 +706,64 @@ export async function processProjectTasks(projectId: string) {
       throw new Error("Project not found");
     }
 
-    const taskArrays: (keyof IProject)[] = [
-      "requirements",
+    const taskArrays = [
       "designing",
       "development",
       "testing",
       "deployment",
-    ];
+    ] as const;
 
     taskArrays.forEach((stage, index) => {
       if (index === taskArrays.length - 1) return; // Skip the last stage 'deployment'
 
-      const nextStage = taskArrays[index + 1];
-      const pendingStage = `pending_${stage}` as keyof IProject;
+      const nextStage = taskArrays[index + 1]; // Get the next stage
+      const pendingStage = `pending_${stage}` as keyof typeof project; // Pending stage key
 
-      const tasks = project[stage] as ITask[];
-      if (
-        !tasks ||
-        !Array.isArray(project[nextStage]) ||
-        !Array.isArray(project[pendingStage])
-      )
-        return;
+      // Get the tasks from the current stage
+      const tasks = project[stage];
 
-      tasks.forEach((task) => {
-        const taskCopy: ITask = { ...task }; // Create a copy of the task
-        if (taskCopy.isComplete) {
-          // Task is complete, move to the next stage and remove assigned members
+      // Process each task in the current stage
+      tasks.forEach((task: ITask) => {
+        if (task.isComplete) {
+          // If task is complete, move to the next stage and remove assigned people
           project[nextStage].push({
-            ...taskCopy,
+            ...task, // Spread the task properties
             assignedPeople: [], // Clear assigned people
-            taskLocation: nextStage,
-          });
+            taskLocation: nextStage, // Update task location
+          } as ITask);
         } else {
-          // Task is not complete, move to the pending stage, keep assigned members
+          // If task is not complete, move to the pending stage and retain assigned people
           project[pendingStage].push({
-            ...taskCopy,
-            taskLocation: pendingStage,
-          });
+            ...task,
+            taskLocation: pendingStage, // Update task location to pending
+          } as ITask);
         }
       });
-
-      // Clear out tasks in the current stage after processing
+      // Clear tasks from the current stage after processing
       project[stage] = [];
     });
 
-    // Save the updated project document
     await project.save();
   } catch (error) {
-    handleError(error);
+    console.error("Error processing project tasks:", error);
+    throw error;
   }
 }
 
-export async function toggleTaskCompletion(projectId: string, taskId: string) {
-  // const { userId } = await userInfo();
+export async function deleteProject(projectId: string): Promise<string> {
   try {
-    const project = await Project.findById(projectId).exec();
+    // Find and delete the project by ID
+    const project = await Project.findByIdAndDelete(projectId);
     if (!project) {
       return "npf";
     }
-    let task = null;
-
-    // Search for the task in all task arrays of the project
-    const allTasks = [
-      ...project.requirements,
-      ...project.designing,
-      ...project.pending_designing,
-      ...project.development,
-      ...project.pending_development,
-      ...project.testing,
-      ...project.pending_testing,
-      ...project.deployment,
-      ...project.pending_deployment,
-      ...project.done,
-    ];
-
-    task = allTasks.find((t) => t._id.toString() === taskId);
-
-    if (!task) {
-      return "ntf";
-    }
-
-    task.isComplete = !task.isComplete;
-    await project.save();
+    await User.updateMany(
+      { workingOnProjects: projectId },
+      { $pull: { workingOnProjects: projectId } }
+    );
     return "success";
   } catch (error) {
+    // Handle any errors that occur during deletion
     handleError(error);
     return "swr";
   }

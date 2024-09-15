@@ -131,8 +131,10 @@ export interface IProject extends Document {
   done: ITask[]; // Array of Task objects for done
 
   joinRequests: IJoinRequest[]; // Array of JoinRequest objects
-  timeSlice: number; // Field for time slice
+  timeSlice: number;
+  dayCount: number; // Field for time slice
   hasStarted: boolean; // Field to check if the project has started
+  hasCompleted: boolean;
   requirements: ITask[]; // Array of Task objects for requirements
   createdAt: Date; // Field for project creation date
   updatedAt: Date; // Field for project last updated date
@@ -169,6 +171,11 @@ const ProjectSchema = new Schema<IProject>({
     type: Boolean,
     default: false,
   },
+  hasCompleted: {
+    type: Boolean,
+    default: false,
+  },
+  dayCount: { type: Number, default: 0 },
   requirements: [TaskSchema], // Array of Task objects for requirements
   createdAt: {
     type: Date,

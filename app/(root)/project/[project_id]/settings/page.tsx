@@ -1,3 +1,4 @@
+import DeleteProjectButton from "@/components/shared/DeleteProjectButton";
 import { getProjectById } from "@/lib/actions/project.actions";
 import { userInfo } from "@/lib/actions/userInfo.action";
 
@@ -14,6 +15,7 @@ export default async function SettingsPage({
         <main>
           <div className="wrapper">
             <p className="mt-6">Project settings page</p>
+            <DeleteProjectButton projectId={params.project_id} />
           </div>
         </main>
       );

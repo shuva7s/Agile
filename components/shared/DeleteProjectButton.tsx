@@ -1,6 +1,4 @@
 "use client";
-import { useToast } from "../ui/use-toast";
-import { useRouter } from "next/navigation";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -12,52 +10,36 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
+import { useToast } from "../ui/use-toast";
 import { Button } from "../ui/button";
-import { deleteMemberAction } from "@/lib/actions/other.actions";
+import { useRouter } from "next/navigation";
+import { deleteProject } from "@/lib/actions/project.actions";
 
-type memberDeletionProps = {
-  hostClerkId: string;
-  projectId: string;
-  memberName: string;
-  memberClerkId: string;
-};
-
-const RemoveMember = ({
-  hostClerkId,
-  projectId,
-  memberName,
-  memberClerkId,
-}: memberDeletionProps) => {
+const DeleteProjectButton = ({ projectId }: { projectId: string }) => {
   const { toast } = useToast();
   const router = useRouter();
   async function handleOnclick() {
     try {
-      const msg = await deleteMemberAction({
-        hostClerkId,
-        projectId,
-        memberClerkId,
-      });
-      if (msg === "success") toast({ title: "Project deleted successfully" });
-      else if (msg === "nhf") toast({ title: "Project not found" });
+      const msg = await deleteProject(projectId);
+      if (msg === "success") toast({ title: "Project deleted successfully." });
       else if (msg === "npf") toast({ title: "No project found." });
       else toast({ title: "Something went wrong..!" });
-      router.refresh();
+      router.replace("/");
     } catch (error) {
       toast({ title: "Something went wrong..!" });
     }
   }
   return (
     <AlertDialog>
-      <AlertDialogTrigger>
-        <Button variant="destructive">Remove</Button>
+      <AlertDialogTrigger asChild>
+        <Button variant="destructive">Delete project</Button>
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
           <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
           <AlertDialogDescription>
-            This action cannot be undone. Member{" "}
-            <span className="font-semibold">@{memberName}</span> will be removed
-            from this project.
+            This action will delete this project and all its associated data.
+            This can not be undone.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <AlertDialogFooter>
@@ -71,4 +53,4 @@ const RemoveMember = ({
   );
 };
 
-export default RemoveMember;
+export default DeleteProjectButton;

@@ -18,6 +18,7 @@ import { toggleTaskCompletion } from "@/lib/actions/project.actions";
 import { useRouter } from "next/navigation";
 import { useToast } from "../ui/use-toast";
 import { handleError } from "@/lib/utils";
+import { useState } from "react"; // Add state management for loading
 
 export default function DoneTask({
   projectId,
@@ -30,16 +31,16 @@ export default function DoneTask({
   taskStatus: string;
   taskDoneOrNot: boolean;
 }) {
-  // const [isComplete, setIsComplete] = useState(taskDoneOrNot);
   const router = useRouter();
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false); // State to handle loading
 
   const handleToggle = async () => {
-    // setIsComplete((prevStatus) => !prevStatus);
+    setIsLoading(true); // Set loading to true when the action starts
     try {
       const response = await toggleTaskCompletion(projectId, taskId);
       if (response === "success") {
-        router.refresh();
+        router.refresh(); // Refresh the page on success
       } else {
         toast({
           title: "Failed to change task status",
@@ -49,13 +50,20 @@ export default function DoneTask({
       }
     } catch (error) {
       handleError(error);
+    } finally {
+      setIsLoading(false); // Reset loading state after the action is complete
     }
   };
 
   return (
     <AlertDialog>
       <AlertDialogTrigger asChild>
-        <Button variant="outline" className="onPrentHover border-0" size="icon">
+        <Button
+          variant="outline"
+          className="onPrentHover border-0"
+          size="icon"
+          disabled={isLoading} // Disable button when loading
+        >
           {taskDoneOrNot ? (
             <CheckCircle className="text-green-500" />
           ) : (
@@ -71,7 +79,9 @@ export default function DoneTask({
         </AlertDialogHeader>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={handleToggle}>Continue</AlertDialogAction>
+          <AlertDialogAction onClick={handleToggle} disabled={isLoading}>
+            {isLoading ? "Processing..." : "Continue"}
+          </AlertDialogAction>
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
